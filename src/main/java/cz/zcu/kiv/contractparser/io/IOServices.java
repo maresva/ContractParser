@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * This class provides methods for IO operations such as get file extension or exporting to JSON.
  *
- * @Author Václav Mareš
+ * @author Vaclav Mares
  */
 public class IOServices {
 

@@ -3,8 +3,10 @@ package cz.zcu.kiv.contractparser;
 import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import cz.zcu.kiv.contractparser.model.ContractType;
-import cz.zcu.kiv.contractparser.parser.GuavaParser;
-import cz.zcu.kiv.contractparser.parser.JSR305Parser;
+import cz.zcu.kiv.contractparser.parser.ContractParser;
+import cz.zcu.kiv.contractparser.parser.ParserFactory;
+import cz.zcu.kiv.contractparser.parser.guavaparser.GuavaParser;
+import cz.zcu.kiv.contractparser.parser.jsr305parser.JSR305Parser;
 import cz.zcu.kiv.contractparser.parser.JavaFileParser;
 import org.apache.log4j.Logger;
 
@@ -17,7 +19,7 @@ import java.util.List;
  * This class provides API for ContractParser. Its methods are meant to be called from outside this library
  * and all of them provide way to retrieve contract from file(s).
  *
- * @Author Václav Mareš
+ * @author Vaclav Mares
  */
 public class Api {
 
@@ -31,6 +33,10 @@ public class Api {
      */
     public static JavaFile retrieveContracts(File file, HashMap<ContractType, Boolean> contractTypes) {
 
+        ParserFactory parserFactory = new ParserFactory();
+        ContractParser contractParser;
+
+
         // parse raw Java file to get structured data
         JavaFile javaFile = JavaFileParser.parseFile(file);
 
@@ -41,15 +47,15 @@ public class Api {
         // If Guava is selected - search for Guava Design by Contracts
         if(contractTypes.get(ContractType.GUAVA)){
             logger.info("Retrieving Guava contracts...");
-            GuavaParser guavaParser= new GuavaParser();
-            javaFile = guavaParser.retrieveContracts(javaFile);
+            contractParser = parserFactory.getParser(ContractType.GUAVA);
+            javaFile = contractParser.retrieveContracts(javaFile);
         }
 
         // If JSR305 is selected - search for JSR305 Design by Contracts
         if(contractTypes.get(ContractType.JSR305)){
             logger.info("Retrieving JSR305 contracts...");
-            JSR305Parser jsr305Parser = new JSR305Parser();
-            javaFile = jsr305Parser.retrieveContracts(javaFile);
+            contractParser = parserFactory.getParser(ContractType.JSR305);
+            javaFile = contractParser.retrieveContracts(javaFile);
         }
 
         return javaFile;

@@ -4,8 +4,9 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.google.common.base.Preconditions;
 import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.FileType;
@@ -21,7 +22,7 @@ import java.io.FileNotFoundException;
 /**
  * This class provides methods to parse file with Java source code to later extract contracts from it.
  *
- * @Author Václav Mareš
+ * @author Vaclav Mares
  */
 public class JavaFileParser {
 
@@ -61,7 +62,7 @@ public class JavaFileParser {
 
                 if(y.getClass().getName() == "com.github.javaparser.ast.ImportDeclaration"){
                     ImportDeclaration id = (ImportDeclaration) y;
-                    javaFile.imports.add(id.getNameAsString());
+                    javaFile.addImport(id.getNameAsString());
                 }
 
                 if(y.getClass().getName() == "com.github.javaparser.ast.body.ClassOrInterfaceDeclaration") {
@@ -69,32 +70,16 @@ public class JavaFileParser {
                     ClassOrInterfaceDeclaration classOrIn = (ClassOrInterfaceDeclaration) y;
 
                     JavaClass javaClass = new JavaClass();
+                    javaClass.setName(classOrIn.getNameAsString());
 
-                    javaClass.name = classOrIn.getNameAsString();
+                    // save individual methods
+                    MethodVisitor visitor = new MethodVisitor();
+                    visitor.visit(cu, javaClass);
 
-                    for(MethodDeclaration method : classOrIn.getMethods()){
-
-                        JavaMethod javaMethod = new JavaMethod();
-                        javaMethod.body = method.getBody().toString();
-                        javaMethod.signature = method.getSignature().toString();
-
-                        javaClass.methods.add(javaMethod);
-                    }
-
-
-
-                    javaFile.classes.add(javaClass);
+                    javaFile.addClass(javaClass);
                 }
             }
         }
-
-        // TODO Jak ziskat classy ze souboru
-        JavaClass javaClass = new JavaClass();
-
-        MethodVisitor visitor = new MethodVisitor();
-        visitor.visit(cu, javaClass);
-
-        javaFile.classes.add(javaClass);
 
         return javaFile;
     }
@@ -129,10 +114,10 @@ public class JavaFileParser {
         if(extension != null) {
             switch (extension) {
                 case "java":
-                    javaFile.fileType = FileType.JAVA;
+                    javaFile.setFileType(FileType.JAVA);
                     break;
                 case "class":
-                    javaFile.fileType = FileType.CLASS;
+                    javaFile.setFileType(FileType.CLASS);
                     break;
                 default:
                     logger.warn("File " + file.getName()  + " not parsed because of unsupported file extension. ("
@@ -141,7 +126,7 @@ public class JavaFileParser {
             }
         }
 
-        javaFile.fileName = fileName;
+        javaFile.setFileName(fileName);
 
         return javaFile;
     }

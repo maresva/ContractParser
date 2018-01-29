@@ -1,27 +1,38 @@
 package cz.zcu.kiv.contractparser.parser;
 
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import cz.zcu.kiv.contractparser.model.JavaClass;
 import cz.zcu.kiv.contractparser.model.JavaMethod;
 
+import java.util.List;
+
 /**
- * @Author Václav Mareš
+ * @author Vaclav Mares
  */
 public class MethodVisitor extends VoidVisitorAdapter {
 
-
-    // TODO v soucasnosti se nepouziva
-    /*
     public void visit(MethodDeclaration n, Object arg) {
 
         JavaClass javaClass = (JavaClass) arg;
 
         JavaMethod javaMethod = new JavaMethod();
-        javaMethod.signature = n.getDeclarationAsString();
-        javaMethod.body = n.getBody().toString();
-        //javaMethod.comments = n.getJavadoc().toString();
+        javaMethod.setSignature(n.getDeclarationAsString());
 
-        javaClass.methods.add(javaMethod);
-    }            */
+        // save annotations
+        for(AnnotationExpr annotationExpr : n.getAnnotations()){
+            javaMethod.addAnnotation(annotationExpr.toString());
+        }
+
+        // save method body as individual nodes (can be converted to statements)
+        for(Node node : n.getBody().get().getChildNodes()) {
+            javaMethod.addBodyNode(node);
+        }
+
+        javaClass.addMethod(javaMethod);
+    }
 }

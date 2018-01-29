@@ -3,7 +3,7 @@ package cz.zcu.kiv.contractparser.model;
 /**
  * Instances of this class represents input parameters of method
  *
- * @Author Václav Mareš
+ * @author Vaclav Mares
  */
 public class InputParameter {
 

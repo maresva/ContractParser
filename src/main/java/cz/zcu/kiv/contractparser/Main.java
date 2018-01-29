@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * Main class - FOR DEBUGGING PURPOSES ONLY
  *
- * @Author Vaclav Mares
+ * @author Vaclav Mares
  */
 public class Main {
 
@@ -25,7 +25,9 @@ public class Main {
         contractTypes.put(ContractType.JSR305, false);
 
         JavaFile javaFile = Api.retrieveContracts("D:/test/mainParser.java", contractTypes);
-        IOServices.exportToJson(javaFile, "D:/test/mainParserJson");
+
+        System.out.println(javaFile);
+        //IOServices.exportToJson(javaFile, "D:/test/mainParserJson");
     }
 
 
