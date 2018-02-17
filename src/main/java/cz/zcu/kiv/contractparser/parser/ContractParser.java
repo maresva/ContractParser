@@ -1,6 +1,6 @@
 package cz.zcu.kiv.contractparser.parser;
 
-import cz.zcu.kiv.contractparser.model.JavaFile;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 
 /**
  * This class provides variety of methods used to parse Java source file to extract
@@ -10,6 +10,6 @@ import cz.zcu.kiv.contractparser.model.JavaFile;
  */
 public interface ContractParser {
 
-    JavaFile retrieveContracts(JavaFile javaFile);
+    ExtendedJavaFile retrieveContracts(ExtendedJavaFile extendedJavaFile);
 
 }

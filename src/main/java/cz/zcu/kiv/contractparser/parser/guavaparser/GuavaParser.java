@@ -2,9 +2,9 @@ package cz.zcu.kiv.contractparser.parser.guavaparser;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import cz.zcu.kiv.contractparser.model.*;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
+import cz.zcu.kiv.contractparser.utility.StringOperator;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -19,32 +19,81 @@ public class GuavaParser implements ContractParser {
     /**
      * This method extracts Design by contract constructions from given file
      *
-     * @param javaFile Parsed input java file
+     * @param extendedJavaFile Parsed input java file
      * @return ContractFile containing structure of the file with contracts
      */
     @Override
-    public JavaFile retrieveContracts(JavaFile javaFile) {
+    public ExtendedJavaFile retrieveContracts(ExtendedJavaFile extendedJavaFile) {
 
-        List<JavaClass> javaClasses = javaFile.getClasses();
+        List<ExtendedJavaClass> extendedJavaClasses = extendedJavaFile.getExtendedJavaClasses();
 
-        for (int i = 0; i < javaClasses.size() ; i++) {
+        if(extendedJavaClasses == null){
+            return extendedJavaFile;
+        }
 
-            for (int j = 0 ; j < javaClasses.get(i).getMethods().size() ; j++) {
+        for (int i = 0; i < extendedJavaClasses.size() ; i++) {
 
-                for(int k = 0 ; k < javaClasses.get(i).getMethods().get(j).getBody().size() ; k++) {
+            for (int j = 0; j < extendedJavaClasses.get(i).getExtendedJavaMethods().size() ; j++) {
 
-                    Node node = javaClasses.get(i).getMethods().get(j).getBody().get(k);
+                for(int k = 0; k < extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getBody().size() ; k++) {
 
-                    Contract contract = new Contract(ContractType.GUAVA, ConditionType.PRE,
-                            node, "TEST message");
+                    Node node = extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getBody().get(k);
 
-                    javaClasses.get(i).getMethods().get(j).addContract(contract);
+                    Contract contract = evaluateExpression(node);
+
+                    if(contract != null){
+                        extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).addContract(contract);
+                        extendedJavaClasses.get(i).getExtendedJavaMethods().get(j)
+                                .increaseNumberOfContracts(ContractType.GUAVA, 1);
+                        extendedJavaFile.increaseNumberOfContracts(ContractType.GUAVA, 1);
+                    }
+
+                    /*
+                    System.out.println(node.toString() + "\n\n");
+
+                    if(node.toString().contains("Preconditions")){
+
+
+
+
+                    }  */
                 }
             }
         }
 
         // TODO
 
-        return javaFile;
+        return extendedJavaFile;
+    }
+
+
+    private Contract evaluateExpression (Node node){
+
+        // TODO vymyslet jak lépe získat metody z Guava Preconditions
+        String[] preconditionsMethods = {"checkArgument", "checkState", "checkNotNull", "checkElementIndex",
+                "badElementIndex", "checkPositionIndex", "badPositionIndex", "checkPositionIndexes",
+                "badPositionIndexes"};
+
+        for(String methodName : preconditionsMethods){
+
+            String expression = node.toString();
+            int index = expression.indexOf(methodName);
+            if(index > 0){
+
+                if(StringOperator.verifyMethodClass(expression, "Preconditions", index)) {
+                    System.out.println(" - TRUE");
+                    // TODO pridat kontrolu, jestli není metoda jiné knihovny (pokud . před, musí být Preconditions)
+                    // importy sledovat ???
+                    Contract contract = new Contract(ContractType.GUAVA, ConditionType.PRE,
+                            node, node.toString(), "TEST message");
+
+                    ExpressionStmt expressionStmt = (ExpressionStmt) node;
+
+                    return contract;
+                }
+            }
+        }
+
+        return null;
     }
 }

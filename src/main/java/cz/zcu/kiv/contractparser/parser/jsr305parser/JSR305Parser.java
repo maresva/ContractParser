@@ -1,6 +1,6 @@
 package cz.zcu.kiv.contractparser.parser.jsr305parser;
 
-import cz.zcu.kiv.contractparser.model.JavaFile;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
 
 /**
@@ -9,10 +9,10 @@ import cz.zcu.kiv.contractparser.parser.ContractParser;
 public class JSR305Parser implements ContractParser {
 
     @Override
-    public JavaFile retrieveContracts(JavaFile javaFile) {
+    public ExtendedJavaFile retrieveContracts(ExtendedJavaFile extendedJavaFile) {
 
         // TODO
 
-        return javaFile;
+        return extendedJavaFile;
     }
 }

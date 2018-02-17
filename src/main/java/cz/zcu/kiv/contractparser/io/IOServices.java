@@ -42,7 +42,19 @@ public class IOServices {
             if (fileEntry.isDirectory()) {
                 files = getFilesFromFolder(fileEntry, files);
             } else {
-                files.add(fileEntry);
+
+                // get name and extension of the file
+                String[] nameAndExtension = getFileNameAndExtension(fileEntry);
+
+                // if file has extension and it is supported one - add file to list
+                if(nameAndExtension != null && nameAndExtension.length == 2){
+                    for(FileType fileType : FileType.values()){
+                        if(nameAndExtension[1].equals(fileType.toString().toLowerCase())){
+                            files.add(fileEntry);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -97,16 +109,17 @@ public class IOServices {
      * This method exports given parsed java file to JSON
      *
      * @param javaFile  Input java file
-     * @param fileName  Name of output file
+     * @param outputFolder  Output folder
      */
-    public static void exportToJson(JavaFile javaFile, String fileName){
+    public static void exportToJson(JavaFile javaFile, File outputFolder){
 
         Gson gson = new Gson();
         String json = gson.toJson(javaFile);
 
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter( new FileWriter(fileName + ".json"));
+            writer = new BufferedWriter( new FileWriter(outputFolder.toString() + "/" + javaFile.getFileName()
+                    + javaFile.getFileType() + ".json"));
             writer.write(json);
         }
         catch ( IOException e) {
@@ -121,6 +134,30 @@ public class IOServices {
             catch ( IOException e) {
 
             }
+        }
+    }
+
+
+    public static void exportManyToJson(List<JavaFile> javaFiles, File outputFolder) {
+
+        if (!outputFolder.exists()){
+            boolean success = outputFolder.mkdirs();
+
+            if(!success){
+                // TODO Handle error
+                System.out.println("ERROR: Output folder could not be created");
+                return;
+            }
+        }
+
+        if(outputFolder == null || !outputFolder.exists() || outputFolder.isFile()){
+            // TODO Handle error
+            System.out.println("ERROR: Output folder doesn't exist");
+            return;
+        }
+
+        for(JavaFile javaFile : javaFiles){
+            exportToJson(javaFile, outputFolder);
         }
     }
 }

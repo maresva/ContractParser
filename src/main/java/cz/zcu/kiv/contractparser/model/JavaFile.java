@@ -1,6 +1,7 @@
 package cz.zcu.kiv.contractparser.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -11,30 +12,43 @@ import java.util.List;
 public class JavaFile {
 
     /** Name of the original file */
-    private String fileName;
+    protected String fileName;
+
+    /** Path of original file */
+    protected String path;
 
     /** Type of the original file (*.class or *.java) */
-    private FileType fileType;
+    protected FileType fileType;
+
+    protected int numberOfClasses;
+
+    protected int numberOfMethods;
+
+    protected HashMap<ContractType, Integer> numberOfContracts;
+
 
     /** List of classes in the file */
-    private List<JavaClass> classes;
-
-    /** List of all imports in the file */
-    private List<String> imports;
+    private List<JavaClass> javaClasses;
 
 
     public JavaFile() {
-        classes = new ArrayList<>();
-        imports = new ArrayList<>();
+        javaClasses = new ArrayList<>();
+        numberOfClasses = 0;
+        numberOfMethods = 0;
+        numberOfContracts = new HashMap<>();
+
+        for(ContractType contractType : ContractType.values()){
+            numberOfContracts.put(contractType, 0);
+        }
     }
 
     @Override
     public String toString() {
         return "JavaFile{" +
                 "fileName='" + fileName + '\'' +
+                "path='" + path + '\'' +
                 ", fileType=" + fileType +
-                ", classes=" + classes +
-                ", imports=" + imports +
+                ", javaClasses=" + javaClasses +
                 '}';
     }
 
@@ -44,31 +58,68 @@ public class JavaFile {
         return fileName;
     }
 
+    public String getPath() {
+        return path;
+    }
+
     public FileType getFileType() {
         return fileType;
     }
 
     public List<JavaClass> getClasses() {
-        return classes;
+        return javaClasses;
     }
 
-    public List<String> getImports() {
-        return imports;
+    public int getNumberOfClasses() {
+        return numberOfClasses;
+    }
+
+    public int getNumberOfMethods() {
+        return numberOfMethods;
+    }
+
+    public HashMap<ContractType, Integer> getNumberOfContracts() {
+        return numberOfContracts;
     }
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public void setFileType(FileType fileType) {
         this.fileType = fileType;
     }
 
-    public void addClass(JavaClass javaClass) {
-        this.classes.add(javaClass);
+    public void setNumberOfClasses(int numberOfClasses) {
+        this.numberOfClasses = numberOfClasses;
     }
 
-    public void addImport(String importString) {
-        this.imports.add(importString);
+    public void setNumberOfMethods(int numberOfMethods) {
+        this.numberOfMethods = numberOfMethods;
+    }
+
+    public void setNumberOfContracts(HashMap<ContractType, Integer> numberOfContracts) {
+        this.numberOfContracts = numberOfContracts;
+    }
+
+    public void increaseNumberOfClasses(int increase) {
+        this.numberOfClasses += increase;
+    }
+
+    public void increaseNumberOfMethods(int increase) {
+        this.numberOfMethods += increase;
+    }
+
+    public void increaseNumberOfContracts(ContractType contractType, int increase) {
+        int current = numberOfContracts.get(contractType);
+        this.numberOfContracts.replace(contractType, current + increase);
+    }
+
+    public void addClass(JavaClass javaClass) {
+        this.javaClasses.add(javaClass);
     }
 }

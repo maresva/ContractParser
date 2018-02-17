@@ -4,15 +4,12 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import com.google.common.base.Preconditions;
 import cz.zcu.kiv.contractparser.io.IOServices;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaClass;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.FileType;
-import cz.zcu.kiv.contractparser.model.JavaClass;
 import cz.zcu.kiv.contractparser.model.JavaFile;
-import cz.zcu.kiv.contractparser.model.JavaMethod;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -35,13 +32,13 @@ public class JavaFileParser {
      * parameters.
      *
      * @param file    Input file to be parsed
-     * @return        JavaFile with structured data
+     * @return        ExtendedJavaFile with structured data
      */
-    public static JavaFile parseFile(File file) {
+    public static ExtendedJavaFile parseFile(File file) {
 
-        JavaFile javaFile = prepareFile(file);
+        ExtendedJavaFile extendedJavaFile = prepareFile(file);
 
-        if(javaFile == null){
+        if(extendedJavaFile == null){
             return null;
         }
 
@@ -62,26 +59,28 @@ public class JavaFileParser {
 
                 if(y.getClass().getName() == "com.github.javaparser.ast.ImportDeclaration"){
                     ImportDeclaration id = (ImportDeclaration) y;
-                    javaFile.addImport(id.getNameAsString());
+                    extendedJavaFile.addImport(id.getNameAsString());
                 }
 
                 if(y.getClass().getName() == "com.github.javaparser.ast.body.ClassOrInterfaceDeclaration") {
 
                     ClassOrInterfaceDeclaration classOrIn = (ClassOrInterfaceDeclaration) y;
 
-                    JavaClass javaClass = new JavaClass();
-                    javaClass.setName(classOrIn.getNameAsString());
+                    ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass();
+                    extendedJavaClass.setName(classOrIn.getNameAsString());
 
                     // save individual methods
                     MethodVisitor visitor = new MethodVisitor();
-                    visitor.visit(cu, javaClass);
+                    visitor.visit(cu, extendedJavaClass);
 
-                    javaFile.addClass(javaClass);
+                    extendedJavaFile.addExtendedJavaClass(extendedJavaClass);
+                    extendedJavaFile.increaseNumberOfClasses(1);
+                    extendedJavaFile.increaseNumberOfMethods(extendedJavaClass.getNumberOfMethods());
                 }
             }
         }
 
-        return javaFile;
+        return extendedJavaFile;
     }
 
 
@@ -89,7 +88,7 @@ public class JavaFileParser {
      * This method prepares file to be parsed and it creates empty javaFile which is later filled with data.
      * It can process *.java or *.class files.
      */
-    public static JavaFile prepareFile(File file) {
+    public static ExtendedJavaFile prepareFile(File file) {
 
         logger.info("Parsing file " + file);
 
@@ -108,16 +107,16 @@ public class JavaFileParser {
             extension = extensionAndName[1];
         }
 
-        JavaFile javaFile = new JavaFile();
+        ExtendedJavaFile extendedJavaFile = new ExtendedJavaFile();
 
         // save extension to the contractFile if valid or throw error otherwise
         if(extension != null) {
             switch (extension) {
                 case "java":
-                    javaFile.setFileType(FileType.JAVA);
+                    extendedJavaFile.setFileType(FileType.JAVA);
                     break;
                 case "class":
-                    javaFile.setFileType(FileType.CLASS);
+                    extendedJavaFile.setFileType(FileType.CLASS);
                     break;
                 default:
                     logger.warn("File " + file.getName()  + " not parsed because of unsupported file extension. ("
@@ -126,8 +125,9 @@ public class JavaFileParser {
             }
         }
 
-        javaFile.setFileName(fileName);
+        extendedJavaFile.setFileName(fileName);
+        extendedJavaFile.setPath(file.getPath());
 
-        return javaFile;
+        return extendedJavaFile;
     }
 }

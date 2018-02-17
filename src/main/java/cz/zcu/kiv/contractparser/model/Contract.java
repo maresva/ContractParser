@@ -17,16 +17,20 @@ public class Contract {
     private ConditionType conditionType;
 
     /** Node containing expressionNode with the contract */
-    private Node expressionNode;
+    transient private Node expressionNode;
+
+    private String expression;
 
     /** Error message which is shown when the contract is broken */
     private String errorMessage;
 
 
-    public Contract(ContractType contractType, ConditionType conditionType, Node expressionNode, String errorMessage) {
+    public Contract(ContractType contractType, ConditionType conditionType, Node expressionNode,
+                    String expression, String errorMessage) {
         this.contractType = contractType;
         this.conditionType = conditionType;
         this.expressionNode = expressionNode;
+        this.expression = expression;
         this.errorMessage = errorMessage;
     }
 
@@ -35,7 +39,7 @@ public class Contract {
         return "Contract{" +
                 "contractType=" + contractType +
                 ", conditionType=" + conditionType +
-                ", expressionNode=" + expressionNode +
+                ", expression=" + expression +
                 ", errorMessage='" + errorMessage + '\'' +
                 '}';
     }
@@ -53,6 +57,10 @@ public class Contract {
         return expressionNode;
     }
 
+    public String getExpression() {
+        return expression;
+    }
+
     public String getErrorMessage() {
         return errorMessage;
     }
@@ -67,6 +75,10 @@ public class Contract {
 
     public void setExpressionNode(Node expressionNode) {
         this.expressionNode = expressionNode;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
     }
 
     public void setErrorMessage(String errorMessage) {

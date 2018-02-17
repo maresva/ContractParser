@@ -1,13 +1,13 @@
 package cz.zcu.kiv.contractparser;
 
 import cz.zcu.kiv.contractparser.io.IOServices;
-import cz.zcu.kiv.contractparser.model.JavaFile;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ContractType;
+import cz.zcu.kiv.contractparser.model.JavaFile;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
 import cz.zcu.kiv.contractparser.parser.ParserFactory;
-import cz.zcu.kiv.contractparser.parser.guavaparser.GuavaParser;
-import cz.zcu.kiv.contractparser.parser.jsr305parser.JSR305Parser;
 import cz.zcu.kiv.contractparser.parser.JavaFileParser;
+import cz.zcu.kiv.contractparser.parser.Simplifier;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -21,9 +21,9 @@ import java.util.List;
  *
  * @author Vaclav Mares
  */
-public class Api {
+public class ContractManagerApi {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(Api.class));
+    final static Logger logger = Logger.getLogger(String.valueOf(ContractManagerApi.class));
 
     /**
      * This method extracts Design by contract constructions from given file
@@ -38,9 +38,9 @@ public class Api {
 
 
         // parse raw Java file to get structured data
-        JavaFile javaFile = JavaFileParser.parseFile(file);
+        ExtendedJavaFile extendedJavaFile = JavaFileParser.parseFile(file);
 
-        if(javaFile == null){
+        if(extendedJavaFile == null){
             return null;
         }
 
@@ -48,15 +48,17 @@ public class Api {
         if(contractTypes.get(ContractType.GUAVA)){
             logger.info("Retrieving Guava contracts...");
             contractParser = parserFactory.getParser(ContractType.GUAVA);
-            javaFile = contractParser.retrieveContracts(javaFile);
+            extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
         }
 
         // If JSR305 is selected - search for JSR305 Design by Contracts
         if(contractTypes.get(ContractType.JSR305)){
             logger.info("Retrieving JSR305 contracts...");
             contractParser = parserFactory.getParser(ContractType.JSR305);
-            javaFile = contractParser.retrieveContracts(javaFile);
+            extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
         }
+
+        JavaFile javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile);
 
         return javaFile;
     }
@@ -85,7 +87,7 @@ public class Api {
      * This method extracts Design by contract constructions from file with input file name
      *
      * @param fileName  Input fileName of file with java source file (*.class or *.java)
-     * @return  JavaFile containing structure of the file with contracts
+     * @return  ExtendedJavaFile containing structure of the file with contracts
      */
     public static JavaFile retrieveContracts(String fileName, HashMap<ContractType, Boolean> contractType) {
 

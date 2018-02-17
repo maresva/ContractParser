@@ -1,9 +1,7 @@
 package cz.zcu.kiv.contractparser.model;
 
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -16,79 +14,73 @@ import java.util.List;
 public class JavaMethod {
 
     /** Signature of the method used for its identification */
-    private String signature;
-
-    /** Annotations for this method */
-    private List<String> annotations;
-
-    /** The whole body of method */
-    private List<Node> body;
+    protected String signature;
 
     /** List of inner methods in this method */
-    private List<JavaMethod> innerMethods;
+    private List<JavaMethod> innerJavaMethods;
 
     /** List of contracts in this method */
-    private List<Contract> contracts;
+    protected List<Contract> contracts;
+
+    protected HashMap<ContractType, Integer> numberOfContracts;
 
 
     public JavaMethod() {
-        annotations = new ArrayList<>();
-        body = new ArrayList<>();
-        innerMethods = new ArrayList<>();
+        innerJavaMethods = new ArrayList<>();
         contracts = new ArrayList<>();
+        numberOfContracts = new HashMap<>();
+
+        for(ContractType contractType : ContractType.values()){
+            numberOfContracts.put(contractType, 0);
+        }
     }
 
     @Override
     public String toString() {
         return "JavaMethod{" +
                 "signature='" + signature + '\'' +
-                ", annotations=" + annotations +
-                ", body=" + body +
-                ", innerMethods=" + innerMethods +
+                ", innerJavaMethods=" + innerJavaMethods +
                 ", contracts=" + contracts +
                 '}';
     }
 
-    // Getters and Setters
 
+    // Getters and Setters
 
     public String getSignature() {
         return signature;
     }
 
-    public List<String> getAnnotations() {
-        return annotations;
-    }
-
-    public List<Node> getBody() {
-        return body;
-    }
-
-    public List<JavaMethod> getInnerMethods() {
-        return innerMethods;
+    public List<JavaMethod> getInnerJavaMethods() {
+        return innerJavaMethods;
     }
 
     public List<Contract> getContracts() {
         return contracts;
     }
 
+    public HashMap<ContractType, Integer> getNumberOfContracts() {
+        return numberOfContracts;
+    }
+
     public void setSignature(String signature) {
         this.signature = signature;
     }
 
-    public void addAnnotation(String annotation) {
-        this.annotations.add(annotation);
-    }
-
-    public void addBodyNode(Node node) {
-        this.body.add(node);
+    public void setContracts(List<Contract> contracts) {
+        this.contracts = contracts;
     }
 
     public void addInnerMethod(JavaMethod javaMethod) {
-        this.innerMethods.add(javaMethod);
+        this.innerJavaMethods.add(javaMethod);
     }
 
     public void addContract(Contract contract) {
         this.contracts.add(contract);
+    }
+
+    public void increaseNumberOfContracts(ContractType contractType, int increase) {
+        int current = numberOfContracts.get(contractType);
+        this.numberOfContracts.replace(contractType, current + increase);
     }
 }
