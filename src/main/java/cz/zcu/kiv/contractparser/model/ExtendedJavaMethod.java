@@ -1,6 +1,7 @@
 package cz.zcu.kiv.contractparser.model;
 
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.Parameter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,9 @@ public class ExtendedJavaMethod extends JavaMethod {
     /** Annotations for this method */
     protected List<String> annotations;
 
+    /** List of input parameters */
+    protected List<Parameter> parameters;
+
     /** The whole body of method */
     protected List<Node> body;
 
@@ -27,6 +31,7 @@ public class ExtendedJavaMethod extends JavaMethod {
     public ExtendedJavaMethod() {
         super();
         annotations = new ArrayList<>();
+        parameters = new ArrayList<>();
         body = new ArrayList<>();
         innerExtendedJavaMethods = new ArrayList<>();
     }
@@ -36,6 +41,7 @@ public class ExtendedJavaMethod extends JavaMethod {
         return "ExtendedJavaMethod{" +
                 "signature='" + signature + '\'' +
                 ", annotations=" + annotations +
+                ", parameters=" + parameters +
                 ", body=" + body +
                 ", innerExtendedJavaMethods=" + innerExtendedJavaMethods +
                 ", contracts=" + contracts +
@@ -49,6 +55,10 @@ public class ExtendedJavaMethod extends JavaMethod {
         return annotations;
     }
 
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
     public List<Node> getBody() {
         return body;
     }
@@ -59,6 +69,10 @@ public class ExtendedJavaMethod extends JavaMethod {
 
     public void addAnnotation(String annotation) {
         this.annotations.add(annotation);
+    }
+
+    public void addParameter(Parameter parameter) {
+        this.parameters.add(parameter);
     }
 
     public void addBodyNode(Node node) {

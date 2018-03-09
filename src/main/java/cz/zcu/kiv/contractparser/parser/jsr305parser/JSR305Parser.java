@@ -1,7 +1,11 @@
 package cz.zcu.kiv.contractparser.parser.jsr305parser;
 
-import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import cz.zcu.kiv.contractparser.model.*;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
+
+import java.util.List;
 
 /**
  * @author Vaclav Mares
@@ -11,7 +15,44 @@ public class JSR305Parser implements ContractParser {
     @Override
     public ExtendedJavaFile retrieveContracts(ExtendedJavaFile extendedJavaFile) {
 
-        // TODO
+        List<ExtendedJavaClass> extendedJavaClasses = extendedJavaFile.getExtendedJavaClasses();
+
+        // TODO complete list
+        String[] JSR305annotations = {"Nonnull", "Nullable"};
+
+        if(extendedJavaClasses == null){
+            return extendedJavaFile;
+        }
+
+        for (int i = 0; i < extendedJavaClasses.size() ; i++) {
+
+            for (int j = 0; j < extendedJavaClasses.get(i).getExtendedJavaMethods().size() ; j++) {
+
+                // TODO check overall method annotations
+
+                for(Parameter parameter : extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getParameters()) {
+
+                    for(AnnotationExpr annotation : parameter.getAnnotations()){
+
+                        for(String JSR305annotation : JSR305annotations){
+
+                            if(annotation.toString().equals("@" + JSR305annotation)){
+
+                                Contract contract = new Contract(ContractType.JSR305, ConditionType.PRE,
+                                        null, parameter.toString(), "MESSAGE");
+
+                                if (contract != null) {
+                                    extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).addContract(contract);
+                                    extendedJavaClasses.get(i).getExtendedJavaMethods().get(j)
+                                            .increaseNumberOfContracts(ContractType.JSR305, 1);
+                                    extendedJavaFile.increaseNumberOfContracts(ContractType.JSR305, 1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         return extendedJavaFile;
     }

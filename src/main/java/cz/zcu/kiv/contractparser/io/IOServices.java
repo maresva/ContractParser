@@ -82,6 +82,10 @@ public class IOServices {
             extensionAndName[1].toLowerCase();
         }
 
+        if(extensionAndName[0] == null || extensionAndName[1] == null){
+            return null;
+        }
+
         return extensionAndName;
     }
 
@@ -89,7 +93,7 @@ public class IOServices {
     // TODO používá se ?
     public static void decompileClassFile(String filename, String tempFile){
 
-        System.out.println("Decompiling class file...");
+        //System.out.println("Decompiling class file...");
 
         try {
             final FileOutputStream stream = new FileOutputStream(tempFile);
@@ -101,7 +105,7 @@ public class IOServices {
 
         }
 
-        System.out.println("Class file decompile completed.");
+        //System.out.println("Class file decompile completed.");
     }
 
 
@@ -112,7 +116,7 @@ public class IOServices {
      * @param outputFolder  Output folder
      */
     public static void exportToJson(JavaFile javaFile, File outputFolder){
-
+                
         Gson gson = new Gson();
         String json = gson.toJson(javaFile);
 

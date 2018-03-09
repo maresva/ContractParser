@@ -24,11 +24,10 @@ public class Main {
     public static void main(String[] args) {
 
         contractTypes.put(ContractType.GUAVA, true);
-        contractTypes.put(ContractType.JSR305, false);
+        contractTypes.put(ContractType.JSR305, true);
 
-        //JavaFile javaFile = ContractManagerApi.retrieveContracts("D:/test/mainParser.java", contractTypes);
-
-        List<JavaFile> javaFiles = ContractManagerApi.retrieveContractsFromFolder("D:/test", contractTypes);
+        //List<JavaFile> javaFiles = ContractManagerApi.retrieveContractsFromFolder("D:\\My\\_ZCU\\dp\\anot-20170926T144409Z-001\\anot\\guava\\guava-10.0", contractTypes);
+        List<JavaFile> javaFiles = ContractManagerApi.retrieveContractsFromFolder("D:\\test2", contractTypes);
 
         IOServices.exportManyToJson(javaFiles, new File("D:/test/JSON_export"));
 

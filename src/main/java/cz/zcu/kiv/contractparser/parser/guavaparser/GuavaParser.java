@@ -47,16 +47,6 @@ public class GuavaParser implements ContractParser {
                                 .increaseNumberOfContracts(ContractType.GUAVA, 1);
                         extendedJavaFile.increaseNumberOfContracts(ContractType.GUAVA, 1);
                     }
-
-                    /*
-                    System.out.println(node.toString() + "\n\n");
-
-                    if(node.toString().contains("Preconditions")){
-
-
-
-
-                    }  */
                 }
             }
         }
@@ -81,13 +71,11 @@ public class GuavaParser implements ContractParser {
             if(index > 0){
 
                 if(StringOperator.verifyMethodClass(expression, "Preconditions", index)) {
-                    System.out.println(" - TRUE");
+                    //System.out.println(" - TRUE");
                     // TODO pridat kontrolu, jestli není metoda jiné knihovny (pokud . před, musí být Preconditions)
                     // importy sledovat ???
                     Contract contract = new Contract(ContractType.GUAVA, ConditionType.PRE,
                             node, node.toString(), "TEST message");
-
-                    ExpressionStmt expressionStmt = (ExpressionStmt) node;
 
                     return contract;
                 }

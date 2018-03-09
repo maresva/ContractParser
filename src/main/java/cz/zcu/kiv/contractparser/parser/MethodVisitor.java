@@ -2,6 +2,7 @@ package cz.zcu.kiv.contractparser.parser;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.BlockComment;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -35,6 +36,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
             // save annotations
             for (AnnotationExpr annotationExpr : n.getAnnotations()) {
                 extendedJavaMethod.addAnnotation(annotationExpr.toString());
+            }
+
+            for(Parameter parameter : n.getParameters()){
+                extendedJavaMethod.addParameter(parameter);
             }
 
             // save method body as individual nodes (can be converted to statements)

@@ -58,6 +58,11 @@ public class JavaFile {
         return fileName;
     }
 
+    public String getCompleteFileName() {
+
+        return fileName + "." + fileType.toString().toLowerCase();
+    }
+
     public String getPath() {
         return path;
     }
@@ -80,6 +85,17 @@ public class JavaFile {
 
     public HashMap<ContractType, Integer> getNumberOfContracts() {
         return numberOfContracts;
+    }
+
+    public int getTotalNumberOfContracts() {
+
+        int total = 0;
+
+        for(HashMap.Entry<ContractType, Integer> entry : numberOfContracts.entrySet()) {
+            total += entry.getValue();
+        }
+
+        return total;
     }
 
     public void setFileName(String fileName) {

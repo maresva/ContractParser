@@ -14,8 +14,8 @@ public class StringOperator {
 
     public static boolean verifyMethodClass(String statement, String searchedClass, int index){
 
-        System.out.println(statement);
-        System.out.println("INDEX: " + index);
+        //System.out.println(statement);
+        //System.out.println("INDEX: " + index);
 
         if(statement == null || searchedClass == null){
             return false;

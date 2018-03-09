@@ -1,5 +1,6 @@
 package cz.zcu.kiv.contractparser;
 
+import com.github.javaparser.ParseProblemException;
 import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ContractType;
@@ -37,29 +38,39 @@ public class ContractManagerApi {
         ContractParser contractParser;
 
 
+        JavaFile javaFile = null;
+
         // parse raw Java file to get structured data
-        ExtendedJavaFile extendedJavaFile = JavaFileParser.parseFile(file);
 
-        if(extendedJavaFile == null){
-            return null;
+        try {
+            ExtendedJavaFile extendedJavaFile = JavaFileParser.parseFile(file);
+
+            if(extendedJavaFile == null){
+                return null;
+            }
+
+            // If Guava is selected - search for Guava Design by Contracts
+            if(contractTypes.get(ContractType.GUAVA)){
+                //logger.info("Retrieving Guava contracts...");
+                contractParser = parserFactory.getParser(ContractType.GUAVA);
+                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+            }
+
+            // If JSR305 is selected - search for JSR305 Design by Contracts
+            if(contractTypes.get(ContractType.JSR305)){
+                //logger.info("Retrieving JSR305 contracts...");
+                contractParser = parserFactory.getParser(ContractType.JSR305);
+                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+            }
+
+            javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile);
+
+            logger.info("Contracts found: " + javaFile.getTotalNumberOfContracts());
         }
-
-        // If Guava is selected - search for Guava Design by Contracts
-        if(contractTypes.get(ContractType.GUAVA)){
-            logger.info("Retrieving Guava contracts...");
-            contractParser = parserFactory.getParser(ContractType.GUAVA);
-            extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+        catch(ParseProblemException e){
+            logger.error("Could not parse file " + file.toString());
         }
-
-        // If JSR305 is selected - search for JSR305 Design by Contracts
-        if(contractTypes.get(ContractType.JSR305)){
-            logger.info("Retrieving JSR305 contracts...");
-            contractParser = parserFactory.getParser(ContractType.JSR305);
-            extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
-        }
-
-        JavaFile javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile);
-
+        
         return javaFile;
     }
 
@@ -68,19 +79,24 @@ public class ContractManagerApi {
      *
      * @param files  List of input files with java source file (*.class or *.java)
      * @return  List of JavaFiles containing structure of the file with contracts
-     */
+     *//*
     public static List<JavaFile> retrieveContracts(List<File> files, HashMap<ContractType, Boolean> contractType) {
 
         List<JavaFile> contracts = new ArrayList<>();
 
         for(File file : files) {
             if(file != null) {
-                contracts.add(retrieveContracts(file, contractType));
+
+                JavaFile javaFile = retrieveContracts(file, contractType);
+
+                if(javaFile != null) {
+                    contracts.add(javaFile);
+                }
             }
         }
 
         return contracts;
-    }
+    }*/
 
 
     /**
@@ -109,7 +125,12 @@ public class ContractManagerApi {
 
         for (final File fileEntry : files) {
             if(fileEntry != null) {
-                contracts.add(retrieveContracts(fileEntry, contractType));
+
+                JavaFile javaFile = retrieveContracts(fileEntry, contractType);
+
+                if(javaFile != null) {
+                    contracts.add(javaFile);
+                }
             }
         }
 
