@@ -2,19 +2,23 @@ package cz.zcu.kiv.contractparser.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.google.common.base.Preconditions;
 import cz.zcu.kiv.contractparser.io.IOServices;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaClass;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
-import cz.zcu.kiv.contractparser.model.FileType;
-import cz.zcu.kiv.contractparser.model.JavaFile;
+import cz.zcu.kiv.contractparser.model.*;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
+
+import static cz.zcu.kiv.contractparser.io.IOServices.decompileClassFile;
 
 /**
  * This class provides methods to parse file with Java source code to later extract contracts from it.
@@ -42,45 +46,114 @@ public class JavaFileParser {
             return null;
         }
 
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        // if the original file was a *.class file its decompiled version is saved fileInputStream tempFile
+        File tempFile = null;
+        if(extendedJavaFile.getFileType() == FileType.CLASS) {
+
+            tempFile = new File("tempFile");
+            decompileClassFile(file.getPath(), "tempFile");
         }
 
+        // prepare input stream
+        FileInputStream fileInputStream;
+        try {
+            if(tempFile != null){
+                fileInputStream = new FileInputStream(tempFile);
+            }
+            else {
+                fileInputStream = new FileInputStream(file);
+            }
+        } catch (FileNotFoundException e) {
+            logger.error("Error while reading file.");
+            logger.error(e.getMessage());
+            return null;
+        }
+
+        
         // parse the file
-        CompilationUnit cu = com.github.javaparser.JavaParser.parse(in);
+        CompilationUnit cu = com.github.javaparser.JavaParser.parse(fileInputStream);
 
+        // get all the classes present fileInputStream the java file
+        for(NodeList<?> nodeList : cu.getNodeLists()){
 
-        for(NodeList<?> x : cu.getNodeLists()){
+            for(Object node : nodeList) {
 
-            for(Object y : x){
+                // if the node is class or interface declaration
+                if(node.getClass() == ClassOrInterfaceDeclaration.class){
 
-                if(y.getClass().getName() == "com.github.javaparser.ast.ImportDeclaration"){
-                    ImportDeclaration id = (ImportDeclaration) y;
-                    extendedJavaFile.addImport(id.getNameAsString());
-                }
+                    // save the class/IF as extendedJavaClass
+                    ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) node;
+                    ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass(classDeclaration.getNameAsString());
 
-                if(y.getClass().getName() == "com.github.javaparser.ast.body.ClassOrInterfaceDeclaration") {
+                    // save class constructors
+                    for(ConstructorDeclaration constructor : classDeclaration.getConstructors()){
 
-                    ClassOrInterfaceDeclaration classOrIn = (ClassOrInterfaceDeclaration) y;
+                        ExtendedJavaMethod extendedJavaMethod = prepareContract(constructor);
+                        if(extendedJavaMethod!= null){
+                            extendedJavaClass.addExtendedJavaMethod(extendedJavaMethod);
+                        }
+                    }
 
-                    ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass();
-                    extendedJavaClass.setName(classOrIn.getNameAsString());
-
-                    // save individual methods
-                    MethodVisitor visitor = new MethodVisitor();
-                    visitor.visit(cu, extendedJavaClass);
+                    // save annotations of the class
+                    for(AnnotationExpr annotationExpr : classDeclaration.getAnnotations()) {
+                        extendedJavaClass.addAnnotation(annotationExpr.toString());
+                    }
 
                     extendedJavaFile.addExtendedJavaClass(extendedJavaClass);
                     extendedJavaFile.increaseNumberOfClasses(1);
-                    extendedJavaFile.increaseNumberOfMethods(extendedJavaClass.getNumberOfMethods());
                 }
             }
         }
 
+        // go through each method fileInputStream given file using the Method visitor
+        MethodVisitor visitor = new MethodVisitor();
+        visitor.visit(cu, extendedJavaFile);
+
+        try {
+            fileInputStream.close();
+        } catch (IOException e) {
+            logger.warn("Input stream for Java file parser couldn't be closed.");
+            logger.warn(e.getMessage());
+        }
+
+        if(tempFile != null && tempFile.exists()){
+            if(!tempFile.delete()){
+                logger.warn("Temporary file could not be deleted.");
+            }
+        }
+
         return extendedJavaFile;
+    }
+
+
+    private static ExtendedJavaMethod prepareContract(ConstructorDeclaration constructor){
+
+        // initialize ExtendedJavaMethod object and save all relevant information
+        ExtendedJavaMethod extendedJavaMethod = new ExtendedJavaMethod(constructor.getDeclarationAsString(), true);
+
+        // save annotations
+        for (AnnotationExpr annotationExpr : constructor.getAnnotations()) {
+            extendedJavaMethod.addAnnotation(annotationExpr.toString());
+        }
+
+        // save parameters
+        for(Parameter parameter : constructor.getParameters()){
+            extendedJavaMethod.addParameter(parameter);
+        }
+
+        // save method body as individual nodes (can be converted to statements)
+        try {
+            for (Node node : constructor.getBody().getChildNodes()) {
+                extendedJavaMethod.addBodyNode(node);
+            }
+        }
+        catch (NoSuchElementException e){
+            logger.warn("Could not retrieve method body nodes.");
+            logger.warn(e.getMessage());
+            return null;
+        }
+
+        return extendedJavaMethod;
     }
 
 
@@ -89,8 +162,6 @@ public class JavaFileParser {
      * It can process *.java or *.class files.
      */
     public static ExtendedJavaFile prepareFile(File file) {
-
-        logger.info("Parsing file " + file);
 
         // check whether file exists and is not directory
         Preconditions.checkArgument(file.exists(), "Given file doesn't exist.");

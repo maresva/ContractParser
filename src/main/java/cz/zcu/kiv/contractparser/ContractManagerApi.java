@@ -12,6 +12,7 @@ import cz.zcu.kiv.contractparser.parser.Simplifier;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,26 +50,27 @@ public class ContractManagerApi {
                 return null;
             }
 
-            // If Guava is selected - search for Guava Design by Contracts
-            if(contractTypes.get(ContractType.GUAVA)){
-                //logger.info("Retrieving Guava contracts...");
-                contractParser = parserFactory.getParser(ContractType.GUAVA);
-                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+            for(int i = 0 ; i < 1 ; i++) {
+                // If Guava is selected - search for Guava Design by Contracts
+                if (contractTypes == null || contractTypes.get(ContractType.GUAVA)) {
+                    contractParser = parserFactory.getParser(ContractType.GUAVA);
+                    extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+                }
             }
 
             // If JSR305 is selected - search for JSR305 Design by Contracts
-            if(contractTypes.get(ContractType.JSR305)){
-                //logger.info("Retrieving JSR305 contracts...");
+            if (contractTypes == null || contractTypes.get(ContractType.JSR305)) {
                 contractParser = parserFactory.getParser(ContractType.JSR305);
                 extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
             }
 
             javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile);
 
-            logger.info("Contracts found: " + javaFile.getTotalNumberOfContracts());
+            logger.debug("Contracts found: " + javaFile.getTotalNumberOfContracts());
         }
         catch(ParseProblemException e){
             logger.error("Could not parse file " + file.toString());
+            logger.error(e.getMessage());
         }
         
         return javaFile;

@@ -11,19 +11,15 @@ import java.util.List;
  */
 public class ExtendedJavaClass extends JavaClass{
 
-    /** List of contracts in this class */
+    /** List of annotations in this class */
     private List<String> annotations;
-
-    /** List of inner classes in this class */
-    protected List<ExtendedJavaClass> innerExtendedJavaClasses;
 
     /** List of methods in this class */
     protected List<ExtendedJavaMethod> extendedJavaMethods;
     
 
-    public ExtendedJavaClass() {
-        super();
-        innerExtendedJavaClasses = new ArrayList<>();
+    public ExtendedJavaClass(String name) {
+        super(name);
         extendedJavaMethods = new ArrayList<>();
         annotations = new ArrayList<>();
     }
@@ -32,7 +28,6 @@ public class ExtendedJavaClass extends JavaClass{
     public String toString() {
         return "ExtendedJavaClass{" +
                 "name='" + name + '\'' +
-                ", innerExtendedJavaClasses=" + innerExtendedJavaClasses +
                 ", extendedJavaMethods=" + extendedJavaMethods +
                 ", annotations=" + annotations +
                 ", invariants=" + invariants +
@@ -46,20 +41,12 @@ public class ExtendedJavaClass extends JavaClass{
         return annotations;
     }
 
-    public List<ExtendedJavaClass> getInnerExtendedJavaClasses() {
-        return innerExtendedJavaClasses;
-    }
-
     public List<ExtendedJavaMethod> getExtendedJavaMethods() {
         return extendedJavaMethods;
     }
 
     public void addAnnotation(String annotation) {
         this.annotations.add(annotation);
-    }
-
-    public void addInnerExtendedJavaClass(ExtendedJavaClass extendedJavaClass) {
-        this.innerExtendedJavaClasses.add(extendedJavaClass);
     }
 
     public void addExtendedJavaMethod(ExtendedJavaMethod extendedJavaMethod) {

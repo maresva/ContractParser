@@ -14,9 +14,6 @@ public class JavaClass {
     /** Name of the class used for its identification */
     protected String name;
 
-    /** List of inner classes in this class */
-    private List<JavaClass> innerJavaClasses;
-
     /** List of methods in this class */
     private List<JavaMethod> javaMethods;
 
@@ -26,8 +23,8 @@ public class JavaClass {
     protected int numberOfMethods;
 
 
-    public JavaClass() {
-        innerJavaClasses = new ArrayList<>();
+    public JavaClass(String name) {
+        this.name = name;
         javaMethods = new ArrayList<>();
         invariants = new ArrayList<>();
     }
@@ -36,7 +33,6 @@ public class JavaClass {
     public String toString() {
         return "JavaClass{" +
                 "name='" + name + '\'' +
-                ", innerJavaClasses=" + innerJavaClasses +
                 ", javaMethods=" + javaMethods +
                 ", invariants=" + invariants +
                 '}';
@@ -47,10 +43,6 @@ public class JavaClass {
 
     public String getName() {
         return name;
-    }
-
-    public List<JavaClass> getInnerJavaClasses() {
-        return innerJavaClasses;
     }
 
     public List<JavaMethod> getJavaMethods() {
@@ -75,10 +67,6 @@ public class JavaClass {
 
     public void addJavaMethod(JavaMethod javaMethod) {
         this.javaMethods.add(javaMethod);
-    }
-
-    public void addInnerClass(JavaClass javaClass) {
-        this.innerJavaClasses.add(javaClass);
     }
 
     public void addInvariants(Contract contract) {

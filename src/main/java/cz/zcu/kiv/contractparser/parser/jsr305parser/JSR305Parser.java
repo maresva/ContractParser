@@ -36,17 +36,21 @@ public class JSR305Parser implements ContractParser {
 
                         for(String JSR305annotation : JSR305annotations){
 
-                            if(annotation.toString().equals("@" + JSR305annotation)){
-
+                            if(annotation.toString().compareTo("@" + JSR305annotation) == 0){
+                                
                                 Contract contract = new Contract(ContractType.JSR305, ConditionType.PRE,
-                                        null, parameter.toString(), "MESSAGE");
+                                        parameter.toString(), annotation.toString(), parameter.toString(),
+                                        "", null);
 
-                                if (contract != null) {
-                                    extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).addContract(contract);
-                                    extendedJavaClasses.get(i).getExtendedJavaMethods().get(j)
-                                            .increaseNumberOfContracts(ContractType.JSR305, 1);
-                                    extendedJavaFile.increaseNumberOfContracts(ContractType.JSR305, 1);
-                                }
+                                contract.setFile(extendedJavaFile.getPath());
+                                contract.setClassName(extendedJavaClasses.get(i).getName());
+                                contract.setMethodName(extendedJavaClasses.get(i).getExtendedJavaMethods()
+                                        .get(j).getSignature());
+
+                                extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).addContract(contract);
+                                extendedJavaClasses.get(i).getExtendedJavaMethods().get(j)
+                                        .increaseNumberOfContracts(ContractType.JSR305, 1);
+                                extendedJavaFile.increaseNumberOfContracts(ContractType.JSR305, 1);
                             }
                         }
                     }

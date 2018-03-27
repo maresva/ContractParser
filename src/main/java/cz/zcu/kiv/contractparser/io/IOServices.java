@@ -3,8 +3,11 @@ package cz.zcu.kiv.contractparser.io;
 
 import com.google.gson.Gson;
 import com.strobel.decompiler.Decompiler;
+import com.strobel.decompiler.DecompilerSettings;
+import cz.zcu.kiv.contractparser.Main;
 import cz.zcu.kiv.contractparser.model.*;
 import com.strobel.decompiler.PlainTextOutput;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,6 +19,9 @@ import java.util.List;
  * @author Vaclav Mares
  */
 public class IOServices {
+
+    final static Logger logger = Logger.getLogger(String.valueOf(IOServices.class));
+    
 
     public static File getFile(String filename){
 
@@ -38,20 +44,27 @@ public class IOServices {
             files = new ArrayList<>();
         }
 
+        if(folder == null){
+            return files;
+        }
+
         for (final File fileEntry : folder.listFiles()) {
-            if (fileEntry.isDirectory()) {
-                files = getFilesFromFolder(fileEntry, files);
-            } else {
 
-                // get name and extension of the file
-                String[] nameAndExtension = getFileNameAndExtension(fileEntry);
+            if(fileEntry != null) {
+                if (fileEntry.isDirectory()) {
+                    files = getFilesFromFolder(fileEntry, files);
+                } else {
 
-                // if file has extension and it is supported one - add file to list
-                if(nameAndExtension != null && nameAndExtension.length == 2){
-                    for(FileType fileType : FileType.values()){
-                        if(nameAndExtension[1].equals(fileType.toString().toLowerCase())){
-                            files.add(fileEntry);
-                            break;
+                    // get name and extension of the file
+                    String[] nameAndExtension = getFileNameAndExtension(fileEntry);
+
+                    // if file has extension and it is supported one - add file to list
+                    if (nameAndExtension != null && nameAndExtension.length == 2) {
+                        for (FileType fileType : FileType.values()) {
+                            if (nameAndExtension[1].equals(fileType.toString().toLowerCase())) {
+                                files.add(fileEntry);
+                                break;
+                            }
                         }
                     }
                 }
@@ -79,7 +92,7 @@ public class IOServices {
         if (i > 0) {
             extensionAndName[0] = filename.substring(0,i);
             extensionAndName[1] = filename.substring(i+1);
-            extensionAndName[1].toLowerCase();
+            extensionAndName[1] = extensionAndName[1].toLowerCase();
         }
 
         if(extensionAndName[0] == null || extensionAndName[1] == null){
@@ -90,22 +103,19 @@ public class IOServices {
     }
 
 
-    // TODO používá se ?
     public static void decompileClassFile(String filename, String tempFile){
-
-        //System.out.println("Decompiling class file...");
 
         try {
             final FileOutputStream stream = new FileOutputStream(tempFile);
             final PrintWriter writer = new PrintWriter(stream);
+
             Decompiler.decompile(filename, new PlainTextOutput(writer));
             writer.flush();
         }
         catch (Exception e){
-
+            logger.error("File " + filename + " could not be decompiled.");
+            logger.error(e.getMessage());
         }
-
-        //System.out.println("Class file decompile completed.");
     }
 
 
@@ -116,27 +126,31 @@ public class IOServices {
      * @param outputFolder  Output folder
      */
     public static void exportToJson(JavaFile javaFile, File outputFolder){
-                
-        Gson gson = new Gson();
-        String json = gson.toJson(javaFile);
 
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter( new FileWriter(outputFolder.toString() + "/" + javaFile.getFileName()
-                    + javaFile.getFileType() + ".json"));
-            writer.write(json);
-        }
-        catch ( IOException e) {
+        if(checkFolder(outputFolder)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(javaFile);
 
-        }
-        finally {
+            BufferedWriter writer = null;
             try {
-                if ( writer != null) {
-                    writer.close();
-                }
-            }
-            catch ( IOException e) {
 
+                String replacedFilePath = javaFile.getPath().replace("\\", "!");
+                replacedFilePath = replacedFilePath.replace(":", "&");
+
+                writer = new BufferedWriter(new FileWriter(outputFolder.toString() + "/" + replacedFilePath + ".json"));
+                writer.write(json);
+            } catch (IOException e) {
+                logger.error("Export to JSON of " + javaFile.getPath() + " to " + outputFolder + " could not be realised.");
+                logger.error(e.getMessage());
+            } finally {
+                try {
+                    if (writer != null) {
+                        writer.close();
+                    }
+                } catch (IOException e) {
+                    logger.error("Export to JSON of " + javaFile.getPath() + " to " + outputFolder + " could not be realised.");
+                    logger.error(e.getMessage());
+                }
             }
         }
     }
@@ -144,24 +158,35 @@ public class IOServices {
 
     public static void exportManyToJson(List<JavaFile> javaFiles, File outputFolder) {
 
-        if (!outputFolder.exists()){
-            boolean success = outputFolder.mkdirs();
+        if(checkFolder(outputFolder)) {
+            for (JavaFile javaFile : javaFiles) {
+                exportToJson(javaFile, outputFolder);
+            }
+        }
+    }
+
+
+    public static boolean checkFolder(File folder){
+
+        if(folder == null){
+            logger.error("JSON output folder " + folder + " doesn't exist.");
+            return false;
+        }
+
+        if (!folder.exists()){
+            boolean success = folder.mkdirs();
 
             if(!success){
-                // TODO Handle error
-                System.out.println("ERROR: Output folder could not be created");
-                return;
+                logger.error("JSON output folder " + folder + " couldn't be created.");
+                return false;
             }
         }
 
-        if(outputFolder == null || !outputFolder.exists() || outputFolder.isFile()){
-            // TODO Handle error
-            System.out.println("ERROR: Output folder doesn't exist");
-            return;
+        if(!folder.exists() || folder.isFile()){
+            logger.error("JSON output folder " + folder + " couldn't be created or it is a file.");
+            return false;
         }
 
-        for(JavaFile javaFile : javaFiles){
-            exportToJson(javaFile, outputFolder);
-        }
+        return true;
     }
 }

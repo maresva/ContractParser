@@ -1,64 +1,120 @@
 package cz.zcu.kiv.contractparser.parser;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.BlockComment;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaClass;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaMethod;
+import org.apache.log4j.Logger;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * @author Vaclav Mares
  */
 public class MethodVisitor extends VoidVisitorAdapter {
 
+    final static Logger logger = Logger.getLogger(String.valueOf(JavaFileParser.class));
+
     /**
      * This method goes through method and saves all important elements such as signature or the body. Statements
      * in body are analyzed and only those that can contain Contract are preserved.
      *
-     * @param n     MethodDeclaration containing all method information
+     * @param methodDeclaration     MethodDeclaration containing all method information
      * @param arg   generic Object arguments - here it is ExtendedJavaClass to where method belongs
      */
-    public void visit(MethodDeclaration n, Object arg) {
+    public void visit(MethodDeclaration methodDeclaration, Object arg) {
 
-        ExtendedJavaClass extendedJavaClass = (ExtendedJavaClass) arg;
+        super.visit(methodDeclaration, arg);
 
-        if(n != null && extendedJavaClass != null) {
+        System.out.println(methodDeclaration.getName());
 
-            ExtendedJavaMethod extendedJavaMethod = new ExtendedJavaMethod();
-            extendedJavaMethod.setSignature(n.getDeclarationAsString());
+        // retrieve argument which is parent ExtendedJavaFile
+        ExtendedJavaFile extendedJavaFile = (ExtendedJavaFile) arg;
+        if(extendedJavaFile == null){
+            logger.warn("ExtendedJavaFile was null.");
+            return;
+        }
+
+        // get parent node of method
+        Optional parent = methodDeclaration.getParentNode();
+        Node nodeParent = null;
+        if(parent.isPresent()){
+            nodeParent = (Node) parent.get();
+        }
+
+        // go through parents until the root parent is found (parent class/interface)
+        while(nodeParent != null) {
+
+            if(nodeParent.getParentNode().isPresent() &&
+                    nodeParent.getParentNode().get().getClass() != CompilationUnit.class){
+                nodeParent = nodeParent.getParentNode().get();
+            }
+            else{
+                break;
+            }
+        }
+
+        ClassOrInterfaceDeclaration classDeclaration;
+        try{
+            classDeclaration = (ClassOrInterfaceDeclaration) nodeParent;
+        }
+        catch (ClassCastException e){
+            logger.warn("Could not retrieve parent class.");
+            logger.warn(e.getMessage());
+            return;
+        }
+
+        if(classDeclaration != null) {
+
+            // initialize ExtendedJavaMethod object and save all relevant information
+            ExtendedJavaMethod extendedJavaMethod = new ExtendedJavaMethod(methodDeclaration.getDeclarationAsString(),
+                    false);
 
             // save annotations
-            for (AnnotationExpr annotationExpr : n.getAnnotations()) {
+            for (AnnotationExpr annotationExpr : methodDeclaration.getAnnotations()) {
                 extendedJavaMethod.addAnnotation(annotationExpr.toString());
             }
 
-            for(Parameter parameter : n.getParameters()){
+            // save parameters
+            for(Parameter parameter : methodDeclaration.getParameters()){
                 extendedJavaMethod.addParameter(parameter);
             }
 
             // save method body as individual nodes (can be converted to statements)
             try {
-
-                for (Node node : n.getBody().get().getChildNodes()) {
-
-                    if(isNodePerspective(node)) {
-                        extendedJavaMethod.addBodyNode(node);
+                if(methodDeclaration.getBody().isPresent()) {
+                    for (Node node : methodDeclaration.getBody().get().getChildNodes()) {
+                        if (isNodePerspective(node)) {
+                            extendedJavaMethod.addBodyNode(node);
+                        }
                     }
                 }
             }
             catch (NoSuchElementException e){
-                // TODO
+                logger.warn("Could not retrieve method body nodes.");
+                logger.warn(e.getMessage());
+                return;
             }
 
-            // add method to class and increase method counter
-            extendedJavaClass.addExtendedJavaMethod(extendedJavaMethod);
-            extendedJavaClass.increaseNumberOfMethods(1);
+            // find parent class and save extendedJavaMethod
+            for (int i = 0; i < extendedJavaFile.getExtendedJavaClasses().size(); i++) {
+
+                if (extendedJavaFile.getExtendedJavaClasses().get(i) != null) {
+                    if (extendedJavaFile.getExtendedJavaClasses().get(i).getName()
+                            .compareTo(classDeclaration.getNameAsString()) == 0) {
+
+                        extendedJavaFile.getExtendedJavaClasses().get(i).addExtendedJavaMethod(extendedJavaMethod);
+                    }
+                }
+            }
         }
     }
 

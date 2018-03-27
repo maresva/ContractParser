@@ -1,5 +1,8 @@
 package cz.zcu.kiv.contractparser.model;
 
+import cz.zcu.kiv.contractparser.comparator.JavaFileCompareReport;
+import cz.zcu.kiv.contractparser.comparator.JavaFileComparator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +27,10 @@ public class JavaFile {
 
     protected int numberOfMethods;
 
+    protected int numberOfMethodsWithContracts;
+
+    protected int totalNumberOfContracts;
+
     protected HashMap<ContractType, Integer> numberOfContracts;
 
 
@@ -35,12 +42,36 @@ public class JavaFile {
         javaClasses = new ArrayList<>();
         numberOfClasses = 0;
         numberOfMethods = 0;
+        numberOfMethodsWithContracts = 0;
+        totalNumberOfContracts = 0;
         numberOfContracts = new HashMap<>();
 
         for(ContractType contractType : ContractType.values()){
             numberOfContracts.put(contractType, 0);
         }
     }
+
+
+    public JavaFileCompareReport compareJavaFileTo(JavaFile otherJavaFile, boolean reportEqual){
+
+        JavaFileComparator javaFileComparator = new JavaFileComparator();
+        return javaFileComparator.compareJavaFiles(this, otherJavaFile, reportEqual);
+    }
+
+
+    public List<Contract> getContracts(){
+
+        List<Contract> contracts = new ArrayList<>();
+
+        for(JavaClass javaClass : javaClasses){
+            for(JavaMethod javaMethod : javaClass.getJavaMethods()){
+                contracts.addAll(javaMethod.getContracts());
+            }
+        }
+
+        return contracts;
+    }
+
 
     @Override
     public String toString() {
@@ -83,19 +114,16 @@ public class JavaFile {
         return numberOfMethods;
     }
 
-    public HashMap<ContractType, Integer> getNumberOfContracts() {
-        return numberOfContracts;
+    public int getNumberOfMethodsWithContracts() {
+        return numberOfMethodsWithContracts;
     }
 
     public int getTotalNumberOfContracts() {
+        return totalNumberOfContracts;
+    }
 
-        int total = 0;
-
-        for(HashMap.Entry<ContractType, Integer> entry : numberOfContracts.entrySet()) {
-            total += entry.getValue();
-        }
-
-        return total;
+    public HashMap<ContractType, Integer> getNumberOfContracts() {
+        return numberOfContracts;
     }
 
     public void setFileName(String fileName) {
@@ -120,6 +148,11 @@ public class JavaFile {
 
     public void setNumberOfContracts(HashMap<ContractType, Integer> numberOfContracts) {
         this.numberOfContracts = numberOfContracts;
+
+        this.totalNumberOfContracts = 0;
+        for(HashMap.Entry<ContractType, Integer> entry : numberOfContracts.entrySet()) {
+            this.totalNumberOfContracts += entry.getValue();
+        }
     }
 
     public void increaseNumberOfClasses(int increase) {
@@ -133,6 +166,7 @@ public class JavaFile {
     public void increaseNumberOfContracts(ContractType contractType, int increase) {
         int current = numberOfContracts.get(contractType);
         this.numberOfContracts.replace(contractType, current + increase);
+        this.totalNumberOfContracts += increase;
     }
 
     public void addClass(JavaClass javaClass) {

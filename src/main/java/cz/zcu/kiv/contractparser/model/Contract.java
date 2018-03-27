@@ -1,6 +1,10 @@
 package cz.zcu.kiv.contractparser.model;
 
-import com.github.javaparser.ast.Node;
+import cz.zcu.kiv.contractparser.comparator.ContractComparator;
+import cz.zcu.kiv.contractparser.comparator.ContractComparison;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Instances of this class represent individual design by contracts that occurred in classes as invariants
@@ -10,39 +14,83 @@ import com.github.javaparser.ast.Node;
  */
 public class Contract {
 
-    /** Type of this contract (Guava, JSR305) */
+    /** Type of this contract (Guava, JSR305, ...) */
     private ContractType contractType;
 
     /** Type of the contract condition (pre-condition, post-condition or class invariant) */
     private ConditionType conditionType;
 
-    /** Node containing expressionNode with the contract */
-    transient private Node expressionNode;
+    /** Complete expression representing the contract */
+    private String completeExpression;
 
+    /** Contract function used. For instance "checkNotNull" or "Nonnull" */
+    private String function;
+
+    /** Contract condition expression represented as a String (first argument of contract function)*/
     private String expression;
 
-    /** Error message which is shown when the contract is broken */
+    /** Error message which is shown when the contract is broken (second argument of contract function) */
     private String errorMessage;
 
+    /** All other arguments used to specify contract. Usually serve as a message template placeholders */
+    private List<String> arguments;
 
-    public Contract(ContractType contractType, ConditionType conditionType, Node expressionNode,
-                    String expression, String errorMessage) {
+    /** Java file from where the contract has been extracted */
+    private String file;
+
+    /** Java class from where the contract has been extracted */
+    private String className;
+
+    /** Java method from where the contract has been extracted */
+    private String methodName;
+
+
+    public Contract(ContractType contractType, ConditionType conditionType, String completeExpression, String function,
+                    String expression, String errorMessage, List<String> arguments) {
         this.contractType = contractType;
         this.conditionType = conditionType;
-        this.expressionNode = expressionNode;
+        this.completeExpression = completeExpression;
+        this.function = function;
         this.expression = expression;
         this.errorMessage = errorMessage;
+
+        if(arguments != null){
+            this.arguments = arguments;
+        }
+        else{
+            this.arguments = new ArrayList<>();
+        }
     }
+
+
+    /**
+     * Compare this contract to other contract
+     *
+     * @param otherContract
+     * @return
+     */
+    public ContractComparison compareTo(Contract otherContract) {
+        
+        ContractComparator contractComparator = new ContractComparator();
+        return contractComparator.compareContracts(this, otherContract);
+    }
+
 
     @Override
     public String toString() {
         return "Contract{" +
                 "contractType=" + contractType +
                 ", conditionType=" + conditionType +
-                ", expression=" + expression +
+                ", function='" + function + '\'' +
+                ", expression='" + expression + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
+                ", arguments=" + arguments +
+                ", file='" + file + '\'' +
+                ", className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
                 '}';
     }
+    
 
     // Getters and Setters
     public ContractType getContractType() {
@@ -53,16 +101,32 @@ public class Contract {
         return conditionType;
     }
 
-    public Node getExpressionNode() {
-        return expressionNode;
-    }
-
     public String getExpression() {
         return expression;
     }
 
+    public String getFunction() {
+        return function;
+    }
+
+    public List<String> getArguments() {
+        return arguments;
+    }
+
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getMethodName() {
+        return methodName;
     }
 
     public void setContractType(ContractType contractType) {
@@ -73,15 +137,39 @@ public class Contract {
         this.conditionType = conditionType;
     }
 
-    public void setExpressionNode(Node expressionNode) {
-        this.expressionNode = expressionNode;
-    }
-
     public void setExpression(String expression) {
         this.expression = expression;
     }
 
+    public void setFunction(String function) {
+        this.function = function;
+    }
+
+    public void setArguments(List<String> arguments) {
+        this.arguments = arguments;
+    }
+
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public String getCompleteExpression() {
+        return completeExpression;
+    }
+
+    public void setCompleteExpression(String completeExpression) {
+        this.completeExpression = completeExpression;
     }
 }

@@ -10,16 +10,12 @@ import java.util.List;
  */
 public class ExtendedJavaFile extends JavaFile{
 
-    /** List of all imports in the file */
-    private List<String> imports;
-
     /** List of classes in the file */
     protected List<ExtendedJavaClass> extendedJavaClasses;
 
 
     public ExtendedJavaFile() {
         super();
-        imports = new ArrayList<>();
         extendedJavaClasses = new ArrayList<>();
     }
 
@@ -30,22 +26,13 @@ public class ExtendedJavaFile extends JavaFile{
                 "path='" + path + '\'' +
                 ", fileType=" + fileType +
                 ", extendedJavaClasses=" + extendedJavaClasses +
-                ", imports=" + imports +
                 '}';
     }
 
 
     // Getters and Setters
-    public List<String> getImports() {
-        return imports;
-    }
-
     public List<ExtendedJavaClass> getExtendedJavaClasses() {
         return extendedJavaClasses;
-    }
-
-    public void addImport(String importString) {
-        this.imports.add(importString);
     }
 
     public void addExtendedJavaClass(ExtendedJavaClass extendedJavaClass) {

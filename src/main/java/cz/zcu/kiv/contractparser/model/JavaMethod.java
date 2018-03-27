@@ -16,8 +16,8 @@ public class JavaMethod {
     /** Signature of the method used for its identification */
     protected String signature;
 
-    /** List of inner methods in this method */
-    private List<JavaMethod> innerJavaMethods;
+    /** Determines whether the method is a constructor */
+    protected boolean isConstructor;
 
     /** List of contracts in this method */
     protected List<Contract> contracts;
@@ -25,8 +25,9 @@ public class JavaMethod {
     protected HashMap<ContractType, Integer> numberOfContracts;
 
 
-    public JavaMethod() {
-        innerJavaMethods = new ArrayList<>();
+    public JavaMethod(String signature, boolean isConstructor) {
+        this.signature = signature;
+        this.isConstructor = isConstructor;
         contracts = new ArrayList<>();
         numberOfContracts = new HashMap<>();
 
@@ -39,7 +40,6 @@ public class JavaMethod {
     public String toString() {
         return "JavaMethod{" +
                 "signature='" + signature + '\'' +
-                ", innerJavaMethods=" + innerJavaMethods +
                 ", contracts=" + contracts +
                 '}';
     }
@@ -51,8 +51,8 @@ public class JavaMethod {
         return signature;
     }
 
-    public List<JavaMethod> getInnerJavaMethods() {
-        return innerJavaMethods;
+    public boolean isConstructor() {
+        return isConstructor;
     }
 
     public List<Contract> getContracts() {
@@ -67,12 +67,12 @@ public class JavaMethod {
         this.signature = signature;
     }
 
-    public void setContracts(List<Contract> contracts) {
-        this.contracts = contracts;
+    public void setConstructor(boolean constructor) {
+        isConstructor = constructor;
     }
 
-    public void addInnerMethod(JavaMethod javaMethod) {
-        this.innerJavaMethods.add(javaMethod);
+    public void setContracts(List<Contract> contracts) {
+        this.contracts = contracts;
     }
 
     public void addContract(Contract contract) {

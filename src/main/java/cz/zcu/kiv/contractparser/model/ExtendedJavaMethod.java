@@ -24,16 +24,12 @@ public class ExtendedJavaMethod extends JavaMethod {
     /** The whole body of method */
     protected List<Node> body;
 
-    /** List of inner methods in this method */
-    protected List<ExtendedJavaMethod> innerExtendedJavaMethods;
 
-
-    public ExtendedJavaMethod() {
-        super();
+    public ExtendedJavaMethod(String signature, boolean isConstructor) {
+        super(signature, isConstructor);
         annotations = new ArrayList<>();
         parameters = new ArrayList<>();
         body = new ArrayList<>();
-        innerExtendedJavaMethods = new ArrayList<>();
     }
 
     @Override
@@ -43,7 +39,6 @@ public class ExtendedJavaMethod extends JavaMethod {
                 ", annotations=" + annotations +
                 ", parameters=" + parameters +
                 ", body=" + body +
-                ", innerExtendedJavaMethods=" + innerExtendedJavaMethods +
                 ", contracts=" + contracts +
                 '}';
     }
@@ -63,10 +58,6 @@ public class ExtendedJavaMethod extends JavaMethod {
         return body;
     }
 
-    public List<ExtendedJavaMethod> getInnerExtendedJavaMethods() {
-        return innerExtendedJavaMethods;
-    }
-
     public void addAnnotation(String annotation) {
         this.annotations.add(annotation);
     }
@@ -77,9 +68,5 @@ public class ExtendedJavaMethod extends JavaMethod {
 
     public void addBodyNode(Node node) {
         this.body.add(node);
-    }
-
-    public void addInnerExtendedJavaMethod(ExtendedJavaMethod extendedJavaMethod) {
-       this.innerExtendedJavaMethods.add(extendedJavaMethod);
     }
 }

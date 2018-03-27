@@ -36,18 +36,12 @@ public class Simplifier {
             return null;
         }
 
-        JavaClass javaClass = new JavaClass();
+        JavaClass javaClass = new JavaClass(extendedJavaClass.getName());
 
         for(ExtendedJavaMethod extendedJavaMethod : extendedJavaClass.getExtendedJavaMethods()) {
 
             JavaMethod javaMethod = simplifyJavaMethod(extendedJavaMethod);
             javaClass.addJavaMethod(javaMethod);
-        }
-
-        for(ExtendedJavaClass innerExtendedJavaClass : extendedJavaClass.getInnerExtendedJavaClasses()) {
-
-            JavaClass innerJavaClass = simplifyJavaClass(innerExtendedJavaClass);
-            javaClass.addInnerClass(innerJavaClass);
         }
 
         javaClass.setName(extendedJavaClass.getName());
@@ -62,13 +56,7 @@ public class Simplifier {
             return null;
         }
 
-        JavaMethod javaMethod = new JavaMethod();
-
-        for(ExtendedJavaMethod innerExtendedJavaMethod : extendedJavaMethod.getInnerExtendedJavaMethods()) {
-
-            JavaMethod innerJavaMethod = simplifyJavaMethod(innerExtendedJavaMethod);
-            javaMethod.addInnerMethod(innerJavaMethod);
-        }
+        JavaMethod javaMethod = new JavaMethod(extendedJavaMethod.getSignature(), extendedJavaMethod.isConstructor());
 
         javaMethod.setSignature(extendedJavaMethod.getSignature());
         javaMethod.setContracts(extendedJavaMethod.getContracts());
