@@ -2,6 +2,7 @@ package cz.zcu.kiv.contractparser.model;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 public class ExtendedJavaMethod extends JavaMethod {
 
     /** Annotations for this method */
-    protected List<String> annotations;
+    protected List<AnnotationExpr> annotations;
 
     /** List of input parameters */
     protected List<Parameter> parameters;
@@ -46,7 +47,7 @@ public class ExtendedJavaMethod extends JavaMethod {
 
     // Getters and Setters
 
-    public List<String> getAnnotations() {
+    public List<AnnotationExpr> getAnnotations() {
         return annotations;
     }
 
@@ -58,7 +59,7 @@ public class ExtendedJavaMethod extends JavaMethod {
         return body;
     }
 
-    public void addAnnotation(String annotation) {
+    public void addAnnotation(AnnotationExpr annotation) {
         this.annotations.add(annotation);
     }
 

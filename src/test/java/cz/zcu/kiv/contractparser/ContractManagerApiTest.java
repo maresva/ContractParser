@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.HashMap;
 
-import static cz.zcu.kiv.contractparser.ContractManagerApi.retrieveContracts;
+import static cz.zcu.kiv.contractparser.ContractExtractorApi.retrieveContracts;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContractManagerApiTest {
@@ -15,19 +15,15 @@ class ContractManagerApiTest {
     @Test
     void testNumberOfContracts() {
 
-        //File file = new File("D:/test/testCase.java");
-
-
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("testFiles/testCase.java").getFile());
-
 
         HashMap<ContractType, Boolean> contractTypes = new HashMap<>();
         contractTypes.put(ContractType.GUAVA, true);
         contractTypes.put(ContractType.JSR305, true);
 
-        JavaFile javaFile = retrieveContracts(file, contractTypes);
+        JavaFile javaFile = retrieveContracts(file, contractTypes, false);
 
-        assertEquals(2, javaFile.getTotalNumberOfContracts());
+        assertEquals(4, javaFile.getJavaFileStatistics().getTotalNumberOfContracts());
     }
 }

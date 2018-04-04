@@ -1,6 +1,8 @@
 package cz.zcu.kiv.contractparser;
 
 import com.github.javaparser.ParseProblemException;
+import cz.zcu.kiv.contractparser.comparator.JavaFolderComparator;
+import cz.zcu.kiv.contractparser.comparator.JavaFolderCompareReport;
 import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ContractType;
@@ -12,7 +14,6 @@ import cz.zcu.kiv.contractparser.parser.Simplifier;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,9 @@ import java.util.List;
  *
  * @author Vaclav Mares
  */
-public class ContractManagerApi {
+public class ContractExtractorApi {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(ContractManagerApi.class));
+    final static Logger logger = Logger.getLogger(String.valueOf(ContractExtractorApi.class));
 
     /**
      * This method extracts Design by contract constructions from given file
@@ -33,18 +34,18 @@ public class ContractManagerApi {
      * @param file  Input file with java source file (*.class or *.java)
      * @return  ContractFile containing structure of the file with contracts
      */
-    public static JavaFile retrieveContracts(File file, HashMap<ContractType, Boolean> contractTypes) {
+    public static JavaFile retrieveContracts(File file, HashMap<ContractType, Boolean> contractTypes,
+                                             boolean removeNonContractObjects) {
 
         ParserFactory parserFactory = new ParserFactory();
         ContractParser contractParser;
 
-
-        JavaFile javaFile = null;
+        JavaFile javaFile;
+        ExtendedJavaFile extendedJavaFile;
 
         // parse raw Java file to get structured data
-
         try {
-            ExtendedJavaFile extendedJavaFile = JavaFileParser.parseFile(file);
+            extendedJavaFile = JavaFileParser.parseFile(file);
 
             if(extendedJavaFile == null){
                 return null;
@@ -64,41 +65,31 @@ public class ContractManagerApi {
                 extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
             }
 
-            javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile);
-
-            logger.debug("Contracts found: " + javaFile.getTotalNumberOfContracts());
+            //logger.debug("Java file parsed: " + javaFile.getPath() + " (Contracts found: " +
+            // javaFile.getJavaFileStatistics().getTotalNumberOfContracts() + ")");
         }
         catch(ParseProblemException e){
             logger.error("Could not parse file " + file.toString());
             logger.error(e.getMessage());
+            return null;
+        }
+
+        // simplify ExtendedJavaFile to JavaFile for export and display purposes
+        javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile, removeNonContractObjects);
+
+        // if checked remove all classes/methods that do not have any contracts or even return null
+        if(removeNonContractObjects) {
+            javaFile = Simplifier.removeNonContractObjects(javaFile);
         }
         
         return javaFile;
     }
 
-    /**
-     * This method extracts Design by contract constructions from every *.java and *.class files of given list
-     *
-     * @param files  List of input files with java source file (*.class or *.java)
-     * @return  List of JavaFiles containing structure of the file with contracts
-     *//*
-    public static List<JavaFile> retrieveContracts(List<File> files, HashMap<ContractType, Boolean> contractType) {
 
-        List<JavaFile> contracts = new ArrayList<>();
+    public static JavaFile retrieveContracts(File file, boolean removeNonContractObjects){
 
-        for(File file : files) {
-            if(file != null) {
-
-                JavaFile javaFile = retrieveContracts(file, contractType);
-
-                if(javaFile != null) {
-                    contracts.add(javaFile);
-                }
-            }
-        }
-
-        return contracts;
-    }*/
+        return retrieveContracts(file, null, removeNonContractObjects);
+    }
 
 
     /**
@@ -107,10 +98,16 @@ public class ContractManagerApi {
      * @param fileName  Input fileName of file with java source file (*.class or *.java)
      * @return  ExtendedJavaFile containing structure of the file with contracts
      */
-    public static JavaFile retrieveContracts(String fileName, HashMap<ContractType, Boolean> contractType) {
+    public static JavaFile retrieveContracts(String fileName, HashMap<ContractType, Boolean> contractType,
+                                             boolean removeNonContractObjects) {
 
         File file = IOServices.getFile(fileName);
-        return retrieveContracts(file, contractType);
+        return retrieveContracts(file, contractType, removeNonContractObjects);
+    }
+
+    public static JavaFile retrieveContracts(String fileName, boolean removeNonContractObjects) {
+
+        return retrieveContracts(fileName, null, removeNonContractObjects);
     }
 
 
@@ -120,7 +117,8 @@ public class ContractManagerApi {
      * @param folder  Input file with java source file (*.class or *.java)
      * @return  List of JavaFiles containing structure of the file with contracts
      */
-    public static List<JavaFile> retrieveContractsFromFolder(File folder, HashMap<ContractType, Boolean> contractType) {
+    public static List<JavaFile> retrieveContractsFromFolder(File folder, HashMap<ContractType, Boolean> contractType,
+                                                             boolean removeNonContractObjects) {
 
         List<JavaFile> contracts = new ArrayList<>();
         List<File> files = IOServices.getFilesFromFolder(folder, null);
@@ -128,7 +126,7 @@ public class ContractManagerApi {
         for (final File fileEntry : files) {
             if(fileEntry != null) {
 
-                JavaFile javaFile = retrieveContracts(fileEntry, contractType);
+                JavaFile javaFile = retrieveContracts(fileEntry, contractType, removeNonContractObjects);
 
                 if(javaFile != null) {
                     contracts.add(javaFile);
@@ -137,6 +135,11 @@ public class ContractManagerApi {
         }
 
         return contracts;
+    }
+
+    public static List<JavaFile> retrieveContractsFromFolder(File folder, boolean removeNonContractObjects) {
+
+        return retrieveContractsFromFolder(folder, null, removeNonContractObjects);
     }
 
 
@@ -147,9 +150,17 @@ public class ContractManagerApi {
      * @param folderName  Input file with java source file (*.class or *.java)
      * @return  List of JavaFiles containing structure of the file with contracts
      */
-    public static List<JavaFile> retrieveContractsFromFolder(String folderName, HashMap<ContractType, Boolean> contractType) {
+    public static List<JavaFile> retrieveContractsFromFolder(String folderName, HashMap<ContractType,
+            Boolean> contractType, boolean removeNonContractObjects) {
 
         File file = IOServices.getFile(folderName);
-        return retrieveContractsFromFolder(file, contractType);
+        return retrieveContractsFromFolder(file, contractType, removeNonContractObjects);
+    }
+
+    
+    public static List<JavaFile> retrieveContractsFromFolder(String folderName, boolean removeNonContractObjects) {
+
+        File file = IOServices.getFile(folderName);
+        return retrieveContractsFromFolder(file, null, removeNonContractObjects);
     }
 }

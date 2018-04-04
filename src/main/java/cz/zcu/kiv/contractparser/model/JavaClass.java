@@ -12,19 +12,21 @@ import java.util.List;
 public class JavaClass {
 
     /** Name of the class used for its identification */
-    protected String name;
+    String name;
+
+    /** Complete signature of the class */
+    String signature;
 
     /** List of methods in this class */
     private List<JavaMethod> javaMethods;
 
     /** List of invariants in this class */
-    protected List<Contract> invariants;
-
-    protected int numberOfMethods;
+    List<Contract> invariants;
 
 
-    public JavaClass(String name) {
+    public JavaClass(String name, String signature) {
         this.name = name;
+        this.signature = signature;
         javaMethods = new ArrayList<>();
         invariants = new ArrayList<>();
     }
@@ -33,9 +35,21 @@ public class JavaClass {
     public String toString() {
         return "JavaClass{" +
                 "name='" + name + '\'' +
+                ", signature=" + signature +
                 ", javaMethods=" + javaMethods +
                 ", invariants=" + invariants +
                 '}';
+    }
+
+
+    public int getTotalNumberOfContracts() {
+
+        int totalNumberOfContracts = 0;
+        for(JavaMethod javaMethod : javaMethods){
+            totalNumberOfContracts += javaMethod.getContracts().size();
+        }
+
+        return totalNumberOfContracts;
     }
 
 
@@ -43,6 +57,10 @@ public class JavaClass {
 
     public String getName() {
         return name;
+    }
+
+    public String getSignature() {
+        return signature;
     }
 
     public List<JavaMethod> getJavaMethods() {
@@ -53,12 +71,12 @@ public class JavaClass {
         return invariants;
     }
 
-    public int getNumberOfMethods() {
-        return numberOfMethods;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
     public void setInvariants(List<Contract> invariants) {
@@ -69,11 +87,7 @@ public class JavaClass {
         this.javaMethods.add(javaMethod);
     }
 
-    public void addInvariants(Contract contract) {
+    public void addInvariant(Contract contract) {
         this.invariants.add(contract);
-    }
-
-    public void increaseNumberOfMethods(int count) {
-        numberOfMethods += count;
     }
 }

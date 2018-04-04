@@ -6,65 +6,82 @@ public class ContractComparator {
 
     public ContractComparison compareContracts(Contract contractX, Contract contractY) {
 
-        boolean contractTypeEqual = contractX.getContractType() == contractY.getContractType();
-        boolean conditionTypeEqual = contractX.getConditionType() == contractY.getConditionType();
-        boolean classEqual = contractX.getClassName().compareTo(contractY.getClassName()) == 0;
-        boolean methodEqual = contractX.getMethodName().compareTo(contractY.getMethodName()) == 0;
+        // if any of the these conditions is false - contracts are considered different
+        // whether the contracts have the same type (Guava, JSR305, ...)
+        if(contractX.getContractType() != contractY.getContractType()){
+            return ContractComparison.DIFFERENT;
+        }
 
-        // if contracts aren't the same type or aren't in the same class(method) they are considered different
-        if(contractTypeEqual && conditionTypeEqual && classEqual && methodEqual){
+        // whether the contracts have the same condition type (pre-condition, post-condition, class invariant)
+        if(contractX.getConditionType() != contractY.getConditionType()) {
+            return ContractComparison.DIFFERENT;
+        }
 
-            // compare contract functions
-            boolean functionEqual = contractX.getFunction().compareTo(contractY.getFunction()) == 0;
+        // whether the contracts are in the same class
+        if(contractX.getClassName().compareTo(contractY.getClassName()) != 0){
+            return ContractComparison.DIFFERENT;
+        }
 
-            // if the function is different contracts are considered also different
-            if(functionEqual){
+        // whether the contracts are in the same method
+        if(contractX.getMethodName().compareTo(contractY.getMethodName()) != 0){
+            return ContractComparison.DIFFERENT;
+        }
 
-                // TODO dat jako MESSAGE_CHANGE/SMAZAT nebo parametrizovat
-                // compare messages of contracts
-                boolean messageEqual = contractX.getErrorMessage().compareTo(contractY.getErrorMessage()) == 0;
-
-                // compare number of arguments
-                // different counts of arguments are considered just as changed as it is usually related to message
-                boolean argumentCountEqual = contractX.getArguments().size() == contractY.getArguments().size();
-
-                // compare arguments itself
-                boolean argumentEqual = true;
-                for (int i = 0 ; i < contractX.getArguments().size() ; i++) {
-
-                    if(contractY.getArguments().size() <= i){
-                        break;
-                    }
-
-                    if(contractX.getArguments().get(i).compareTo(contractY.getArguments().get(i)) != 0){
-                        argumentEqual = false;
-                    }
-                }// TODO konec message casti
+        // whether the contracts use the same function
+        if(contractX.getFunction().compareTo(contractY.getFunction()) != 0){
+            return ContractComparison.DIFFERENT;
+        }
 
 
-                // compare contract expression (first argument of the function
-                // TODO vetsi komplexita rozhodnuti nez booolean (např x > 0 vs x >= 0) -> MESSAGE_CHANGE
-                boolean expressionEqual = contractX.getExpression().compareTo(contractY.getExpression()) == 0;
+        // compare contract expression (first argument of the function)
+        // unless are the contracts considered the same return the answer
+        ContractComparison expressionComparison = compareContractExpressions(contractX.getExpression(),
+                contractY.getExpression());
+        if(expressionComparison != ContractComparison.EQUAL){
+            return expressionComparison;
+        }
 
-                if(expressionEqual){
 
-                    if(!messageEqual || !argumentCountEqual || !argumentEqual){
-                        return ContractComparison.MESSAGE_CHANGE;
-                    }
-                    else{
-                        return ContractComparison.EQUAL;
-                    }
-                }
-                else{
-                    return ContractComparison.DIFFERENT;
-                }
+        // all of following comparisons are message related - if there are some differences they are considered minor
+        // compare messages of contracts
+        if(contractX.getErrorMessage().compareTo(contractY.getErrorMessage()) != 0){
+            return ContractComparison.MINOR_CHANGE;
+        }
+
+        // compare number of arguments
+        // different counts of arguments are considered just as changed as they are usually related to message
+        if(contractX.getArguments().size() != contractY.getArguments().size()){
+            return ContractComparison.MINOR_CHANGE;
+        }
+
+        // compare arguments itself
+        for (int i = 0 ; i < contractX.getArguments().size() ; i++) {
+
+            if(contractY.getArguments().size() <= i){
+                break;
             }
-            else{
-                return ContractComparison.DIFFERENT;
+
+            // if the message or the arguments were somehow different return minor change
+            if(contractX.getArguments().get(i).compareTo(contractY.getArguments().get(i)) != 0){
+                return ContractComparison.MINOR_CHANGE;
             }
         }
+
+        
+        // if there was not found any difference - contracts are considered equal
+        return ContractComparison.EQUAL;
+    }
+
+
+    private ContractComparison compareContractExpressions(String contractXExpression, String contractYExpression) {
+
+        // TODO vetsi komplexita rozhodnuti nez booolean - rozebrat expression a pouzit SPECIALIZED/GENERALIZED
+
+        if(contractXExpression.compareTo(contractYExpression) == 0){
+            return ContractComparison.EQUAL;
+        }
         else{
-            return ContractComparison.DIFFERENT;
+            return ContractComparison.DIFFERENT_EXPRESSION;
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public class ExtendedJavaFile extends JavaFile{
 
     /** List of classes in the file */
-    protected List<ExtendedJavaClass> extendedJavaClasses;
+    private List<ExtendedJavaClass> extendedJavaClasses;
 
 
     public ExtendedJavaFile() {

@@ -22,18 +22,11 @@ public class JavaMethod {
     /** List of contracts in this method */
     protected List<Contract> contracts;
 
-    protected HashMap<ContractType, Integer> numberOfContracts;
-
 
     public JavaMethod(String signature, boolean isConstructor) {
         this.signature = signature;
         this.isConstructor = isConstructor;
         contracts = new ArrayList<>();
-        numberOfContracts = new HashMap<>();
-
-        for(ContractType contractType : ContractType.values()){
-            numberOfContracts.put(contractType, 0);
-        }
     }
 
     @Override
@@ -59,10 +52,6 @@ public class JavaMethod {
         return contracts;
     }
 
-    public HashMap<ContractType, Integer> getNumberOfContracts() {
-        return numberOfContracts;
-    }
-
     public void setSignature(String signature) {
         this.signature = signature;
     }
@@ -77,10 +66,5 @@ public class JavaMethod {
 
     public void addContract(Contract contract) {
         this.contracts.add(contract);
-    }
-
-    public void increaseNumberOfContracts(ContractType contractType, int increase) {
-        int current = numberOfContracts.get(contractType);
-        this.numberOfContracts.replace(contractType, current + increase);
     }
 }

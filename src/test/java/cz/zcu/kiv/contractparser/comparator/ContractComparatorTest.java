@@ -1,6 +1,6 @@
 package cz.zcu.kiv.contractparser.comparator;
 
-import cz.zcu.kiv.contractparser.ContractManagerApi;
+import cz.zcu.kiv.contractparser.ContractExtractorApi;
 import cz.zcu.kiv.contractparser.model.Contract;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ class ContractComparatorTest {
         System.out.println(contractX);
         System.out.println(contractY);
 
-        assertEquals(ContractComparison.MESSAGE_CHANGE, contractX.compareTo(contractY));
+        assertEquals(ContractComparison.MINOR_CHANGE, contractX.compareTo(contractY));
     }
 
 
@@ -60,7 +60,7 @@ class ContractComparatorTest {
 
     private Contract getTestContract(String path) {
         File file = new File(classLoader.getResource(path).getFile());
-        JavaFile javaFile = ContractManagerApi.retrieveContracts(file, null);
+        JavaFile javaFile = ContractExtractorApi.retrieveContracts(file, null, false);
 
         return javaFile.getContracts().get(0);
     }

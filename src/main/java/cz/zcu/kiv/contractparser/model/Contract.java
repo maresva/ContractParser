@@ -36,13 +36,13 @@ public class Contract {
     private List<String> arguments;
 
     /** Java file from where the contract has been extracted */
-    private String file;
+    transient private String file;
 
     /** Java class from where the contract has been extracted */
-    private String className;
+    transient private String className;
 
     /** Java method from where the contract has been extracted */
-    private String methodName;
+    transient private String methodName;
 
 
     public Contract(ContractType contractType, ConditionType conditionType, String completeExpression, String function,

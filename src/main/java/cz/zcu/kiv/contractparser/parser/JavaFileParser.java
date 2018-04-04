@@ -1,12 +1,12 @@
 package cz.zcu.kiv.contractparser.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.google.common.base.Preconditions;
@@ -15,7 +15,6 @@ import cz.zcu.kiv.contractparser.model.*;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
 import static cz.zcu.kiv.contractparser.io.IOServices.decompileClassFile;
@@ -40,6 +39,8 @@ public class JavaFileParser {
      */
     public static ExtendedJavaFile parseFile(File file) {
 
+        String tempFileName = "tempFile";
+
         ExtendedJavaFile extendedJavaFile = prepareFile(file);
 
         if(extendedJavaFile == null){
@@ -50,8 +51,11 @@ public class JavaFileParser {
         File tempFile = null;
         if(extendedJavaFile.getFileType() == FileType.CLASS) {
 
-            tempFile = new File("tempFile");
-            decompileClassFile(file.getPath(), "tempFile");
+            tempFile = new File(tempFileName);
+
+            if(!decompileClassFile(file.getPath(), tempFileName)){
+                return null;
+            }
         }
 
         // prepare input stream
@@ -68,10 +72,16 @@ public class JavaFileParser {
             logger.error(e.getMessage());
             return null;
         }
-
         
-        // parse the file
-        CompilationUnit cu = com.github.javaparser.JavaParser.parse(fileInputStream);
+        // parse the file (log any exception thrown by the parser
+        CompilationUnit cu;
+        try {
+            cu = com.github.javaparser.JavaParser.parse(fileInputStream);
+        } catch (Exception e){
+            logger.warn(extendedJavaFile.getPath() + " could not be parsed due to exception: " + e.getClass());
+            logger.warn(e.getMessage());
+            return null;
+        }
 
         // get all the classes present fileInputStream the java file
         for(NodeList<?> nodeList : cu.getNodeLists()){
@@ -83,7 +93,9 @@ public class JavaFileParser {
 
                     // save the class/IF as extendedJavaClass
                     ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) node;
-                    ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass(classDeclaration.getNameAsString());
+
+                    ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass(classDeclaration.getNameAsString(),
+                            prepareClassSignature(classDeclaration));
 
                     // save class constructors
                     for(ConstructorDeclaration constructor : classDeclaration.getConstructors()){
@@ -91,16 +103,17 @@ public class JavaFileParser {
                         ExtendedJavaMethod extendedJavaMethod = prepareContract(constructor);
                         if(extendedJavaMethod!= null){
                             extendedJavaClass.addExtendedJavaMethod(extendedJavaMethod);
+                            extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethods(1);
                         }
                     }
 
                     // save annotations of the class
                     for(AnnotationExpr annotationExpr : classDeclaration.getAnnotations()) {
-                        extendedJavaClass.addAnnotation(annotationExpr.toString());
+                        extendedJavaClass.addAnnotation(annotationExpr);
                     }
 
                     extendedJavaFile.addExtendedJavaClass(extendedJavaClass);
-                    extendedJavaFile.increaseNumberOfClasses(1);
+                    extendedJavaFile.getJavaFileStatistics().increaseNumberOfClasses(1);
                 }
             }
         }
@@ -116,9 +129,11 @@ public class JavaFileParser {
             logger.warn(e.getMessage());
         }
 
+
+        // TODO vyresit, proc se soubor obcas nemaze
         if(tempFile != null && tempFile.exists()){
             if(!tempFile.delete()){
-                logger.warn("Temporary file could not be deleted.");
+                //logger.warn("Temporary file could not be deleted.");
             }
         }
 
@@ -133,7 +148,7 @@ public class JavaFileParser {
 
         // save annotations
         for (AnnotationExpr annotationExpr : constructor.getAnnotations()) {
-            extendedJavaMethod.addAnnotation(annotationExpr.toString());
+            extendedJavaMethod.addAnnotation(annotationExpr);
         }
 
         // save parameters
@@ -200,5 +215,27 @@ public class JavaFileParser {
         extendedJavaFile.setPath(file.getPath());
 
         return extendedJavaFile;
+    }
+
+
+    public static String prepareClassSignature(ClassOrInterfaceDeclaration classOrInterfaceDeclaration){
+
+        StringBuilder signature = new StringBuilder();
+        for(Modifier modifier : classOrInterfaceDeclaration.getModifiers()){
+
+            signature.append(modifier.toString().toLowerCase()).append(" ");
+        }
+
+        if(classOrInterfaceDeclaration.isInterface()){
+            signature.append("interface");
+        }
+        else{
+            signature.append("class");
+        }
+
+        signature.append(" ");
+        signature.append(classOrInterfaceDeclaration.getNameAsString());
+
+        return signature.toString();
     }
 }

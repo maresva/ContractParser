@@ -1,5 +1,7 @@
 package cz.zcu.kiv.contractparser.model;
 
+import com.github.javaparser.ast.expr.AnnotationExpr;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +14,14 @@ import java.util.List;
 public class ExtendedJavaClass extends JavaClass{
 
     /** List of annotations in this class */
-    private List<String> annotations;
+    private List<AnnotationExpr> annotations;
 
     /** List of methods in this class */
     protected List<ExtendedJavaMethod> extendedJavaMethods;
     
 
-    public ExtendedJavaClass(String name) {
-        super(name);
+    public ExtendedJavaClass(String name, String signature) {
+        super(name, signature);
         extendedJavaMethods = new ArrayList<>();
         annotations = new ArrayList<>();
     }
@@ -37,7 +39,7 @@ public class ExtendedJavaClass extends JavaClass{
     
     // Getters and Setters
 
-    public List<String> getAnnotations() {
+    public List<AnnotationExpr> getAnnotations() {
         return annotations;
     }
 
@@ -45,7 +47,7 @@ public class ExtendedJavaClass extends JavaClass{
         return extendedJavaMethods;
     }
 
-    public void addAnnotation(String annotation) {
+    public void addAnnotation(AnnotationExpr annotation) {
         this.annotations.add(annotation);
     }
 

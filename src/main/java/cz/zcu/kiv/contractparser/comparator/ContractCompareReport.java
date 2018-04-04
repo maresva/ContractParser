@@ -7,17 +7,32 @@ public class ContractCompareReport {
     private String methodName;
     private String thisContractExpression;
     private String otherContractExpression;
+    private ApiState apiState;
 
 
     public ContractCompareReport(ContractComparison contractComparison, String className, String methodName,
-                                 String thisContractExpression, String otherContractExpression) {
+                                 String thisContractExpression, String otherContractExpression, ApiState apiState) {
         this.contractComparison = contractComparison;
         this.className = className;
         this.methodName = methodName;
         this.thisContractExpression = thisContractExpression;
         this.otherContractExpression = otherContractExpression;
+        this.apiState = apiState;
     }
 
+
+    @Override
+    public String toString() {
+        return "ContractCompareReport{" +
+                "contractComparison=" + contractComparison +
+                ", className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", thisContractExpression='" + thisContractExpression + '\'' +
+                ", otherContractExpression='" + otherContractExpression + '\'' +
+                ", apiState=" + apiState +
+                '}';
+    }
+    
 
     public ContractComparison getContractComparison() {
         return contractComparison;
@@ -57,5 +72,13 @@ public class ContractCompareReport {
 
     public void setOtherContractExpression(String otherContractExpression) {
         this.otherContractExpression = otherContractExpression;
+    }
+
+    public ApiState getApiState() {
+        return apiState;
+    }
+
+    public void setApiState(ApiState apiState) {
+        this.apiState = apiState;
     }
 }

@@ -3,6 +3,7 @@ package cz.zcu.kiv.contractparser.parser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.BlockComment;
@@ -34,8 +35,6 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
         super.visit(methodDeclaration, arg);
 
-        System.out.println(methodDeclaration.getName());
-
         // retrieve argument which is parent ExtendedJavaFile
         ExtendedJavaFile extendedJavaFile = (ExtendedJavaFile) arg;
         if(extendedJavaFile == null){
@@ -50,29 +49,32 @@ public class MethodVisitor extends VoidVisitorAdapter {
             nodeParent = (Node) parent.get();
         }
 
-        // go through parents until the root parent is found (parent class/interface)
-        while(nodeParent != null) {
+        Node topParent = null;
 
-            if(nodeParent.getParentNode().isPresent() &&
-                    nodeParent.getParentNode().get().getClass() != CompilationUnit.class){
-                nodeParent = nodeParent.getParentNode().get();
-            }
-            else{
-                break;
-            }
-        }
-
-        ClassOrInterfaceDeclaration classDeclaration;
-        try{
-            classDeclaration = (ClassOrInterfaceDeclaration) nodeParent;
-        }
-        catch (ClassCastException e){
-            logger.warn("Could not retrieve parent class.");
-            logger.warn(e.getMessage());
+        if(nodeParent == null){
+            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getPath());
             return;
         }
 
-        if(classDeclaration != null) {
+        // if the node is class declaration 
+        if(nodeParent.getClass() == ClassOrInterfaceDeclaration.class || nodeParent.getClass() == EnumDeclaration.class){
+            topParent = nodeParent;
+        }
+
+        // go through parents until the root parent is found (parent class/interface)
+        while(nodeParent.getParentNode().isPresent() && nodeParent.getParentNode().get().getClass() != CompilationUnit.class) {
+
+            nodeParent = nodeParent.getParentNode().get();
+
+            if(nodeParent.getClass() == ClassOrInterfaceDeclaration.class || nodeParent.getClass() == EnumDeclaration.class){
+                topParent = nodeParent;
+            }
+        }
+
+        if(topParent == null){
+            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getPath());
+        }
+        else {
 
             // initialize ExtendedJavaMethod object and save all relevant information
             ExtendedJavaMethod extendedJavaMethod = new ExtendedJavaMethod(methodDeclaration.getDeclarationAsString(),
@@ -80,7 +82,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
             // save annotations
             for (AnnotationExpr annotationExpr : methodDeclaration.getAnnotations()) {
-                extendedJavaMethod.addAnnotation(annotationExpr.toString());
+                extendedJavaMethod.addAnnotation(annotationExpr);
             }
 
             // save parameters
@@ -108,10 +110,24 @@ public class MethodVisitor extends VoidVisitorAdapter {
             for (int i = 0; i < extendedJavaFile.getExtendedJavaClasses().size(); i++) {
 
                 if (extendedJavaFile.getExtendedJavaClasses().get(i) != null) {
+
+                    String topParentName = "";
+                    if(topParent.getClass() == ClassOrInterfaceDeclaration.class){
+
+                        ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) topParent;
+                        topParentName = classOrInterfaceDeclaration.getNameAsString();
+                    }
+                    else if(topParent.getClass() == EnumDeclaration.class){
+
+                        EnumDeclaration enumDeclaration = (EnumDeclaration) topParent;
+                        topParentName = enumDeclaration.getNameAsString();
+                    }
+
                     if (extendedJavaFile.getExtendedJavaClasses().get(i).getName()
-                            .compareTo(classDeclaration.getNameAsString()) == 0) {
+                            .compareTo(topParentName) == 0) {
 
                         extendedJavaFile.getExtendedJavaClasses().get(i).addExtendedJavaMethod(extendedJavaMethod);
+                        extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethods(1);
                     }
                 }
             }

@@ -39,10 +39,15 @@ public class GuavaParser implements ContractParser {
             return extendedJavaFile;
         }
 
+        // for each class
         for (int i = 0; i < extendedJavaClasses.size() ; i++) {
 
+            // for each method
             for (int j = 0; j < extendedJavaClasses.get(i).getExtendedJavaMethods().size() ; j++) {
 
+                boolean methodHasContract = false;
+
+                // for each method body node
                 for(int k = 0; k < extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getBody().size() ; k++) {
 
                     Node node = extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getBody().get(k);
@@ -50,16 +55,22 @@ public class GuavaParser implements ContractParser {
                     Contract contract = evaluateExpression(node);
 
                     if(contract != null){
-                        
+
+                        if(extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getContracts().size() == 0) {
+                            methodHasContract = true;
+                        }
+
                         contract.setFile(extendedJavaFile.getPath());
                         contract.setClassName(extendedJavaClasses.get(i).getName());
                         contract.setMethodName(extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getSignature());
 
                         extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).addContract(contract);
-                        extendedJavaClasses.get(i).getExtendedJavaMethods().get(j)
-                                .increaseNumberOfContracts(ContractType.GUAVA, 1);
-                        extendedJavaFile.increaseNumberOfContracts(ContractType.GUAVA, 1);
+                        extendedJavaFile.getJavaFileStatistics().increaseNumberOfContracts(ContractType.GUAVA, 1);
                     }
+                }
+
+                if(methodHasContract){
+                    extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethodsWithContracts(1);
                 }
             }
         }
@@ -85,7 +96,7 @@ public class GuavaParser implements ContractParser {
                 if(preconditionMethod.compareTo(methodName) == 0){
 
                     // TODO zkontrolovat jestli je scope nic nebo Preconditions nebo com.google.common.base.Preconditions
-                    System.out.println("SCOPE: " + methodCallExpr.getScope().get());
+                    //System.out.println("SCOPE: " + methodCallExpr.getScope().get());
 
                     // get method call arguments - we are interested in first two (expression and error message)
                     NodeList<Expression> arguments = methodCallExpr.getArguments();

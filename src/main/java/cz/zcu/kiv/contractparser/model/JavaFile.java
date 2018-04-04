@@ -4,7 +4,6 @@ import cz.zcu.kiv.contractparser.comparator.JavaFileCompareReport;
 import cz.zcu.kiv.contractparser.comparator.JavaFileComparator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,23 +14,16 @@ import java.util.List;
 public class JavaFile {
 
     /** Name of the original file */
-    protected String fileName;
+    String fileName;
 
     /** Path of original file */
-    protected String path;
+    String path;
 
     /** Type of the original file (*.class or *.java) */
-    protected FileType fileType;
+    FileType fileType;
 
-    protected int numberOfClasses;
-
-    protected int numberOfMethods;
-
-    protected int numberOfMethodsWithContracts;
-
-    protected int totalNumberOfContracts;
-
-    protected HashMap<ContractType, Integer> numberOfContracts;
+    /** JavaFileStatistics about this JavaFile */
+    JavaFileStatistics javaFileStatistics;
 
 
     /** List of classes in the file */
@@ -39,23 +31,17 @@ public class JavaFile {
 
 
     public JavaFile() {
-        javaClasses = new ArrayList<>();
-        numberOfClasses = 0;
-        numberOfMethods = 0;
-        numberOfMethodsWithContracts = 0;
-        totalNumberOfContracts = 0;
-        numberOfContracts = new HashMap<>();
-
-        for(ContractType contractType : ContractType.values()){
-            numberOfContracts.put(contractType, 0);
-        }
+        this.javaClasses = new ArrayList<>();
+        this.javaFileStatistics = new JavaFileStatistics();
+        this.javaFileStatistics = new JavaFileStatistics();
     }
 
 
-    public JavaFileCompareReport compareJavaFileTo(JavaFile otherJavaFile, boolean reportEqual){
+    public JavaFileCompareReport compareJavaFileTo(JavaFile otherJavaFile, boolean reportEqual,
+                                                   boolean reportNonContractChanges){
 
         JavaFileComparator javaFileComparator = new JavaFileComparator();
-        return javaFileComparator.compareJavaFiles(this, otherJavaFile, reportEqual);
+        return javaFileComparator.compareJavaFiles(this, otherJavaFile, reportEqual, reportNonContractChanges);
     }
 
 
@@ -83,8 +69,8 @@ public class JavaFile {
                 '}';
     }
 
-    // Getters and Setters
 
+    // Getters and Setters
     public String getFileName() {
         return fileName;
     }
@@ -102,28 +88,12 @@ public class JavaFile {
         return fileType;
     }
 
-    public List<JavaClass> getClasses() {
+    public JavaFileStatistics getJavaFileStatistics() {
+        return javaFileStatistics;
+    }
+
+    public List<JavaClass> getJavaClasses() {
         return javaClasses;
-    }
-
-    public int getNumberOfClasses() {
-        return numberOfClasses;
-    }
-
-    public int getNumberOfMethods() {
-        return numberOfMethods;
-    }
-
-    public int getNumberOfMethodsWithContracts() {
-        return numberOfMethodsWithContracts;
-    }
-
-    public int getTotalNumberOfContracts() {
-        return totalNumberOfContracts;
-    }
-
-    public HashMap<ContractType, Integer> getNumberOfContracts() {
-        return numberOfContracts;
     }
 
     public void setFileName(String fileName) {
@@ -138,38 +108,15 @@ public class JavaFile {
         this.fileType = fileType;
     }
 
-    public void setNumberOfClasses(int numberOfClasses) {
-        this.numberOfClasses = numberOfClasses;
+    public void setJavaFileStatistics(JavaFileStatistics javaFileStatistics) {
+        this.javaFileStatistics = javaFileStatistics;
     }
 
-    public void setNumberOfMethods(int numberOfMethods) {
-        this.numberOfMethods = numberOfMethods;
+    public void setJavaClasses(List<JavaClass> javaClasses) {
+        this.javaClasses = javaClasses;
     }
 
-    public void setNumberOfContracts(HashMap<ContractType, Integer> numberOfContracts) {
-        this.numberOfContracts = numberOfContracts;
-
-        this.totalNumberOfContracts = 0;
-        for(HashMap.Entry<ContractType, Integer> entry : numberOfContracts.entrySet()) {
-            this.totalNumberOfContracts += entry.getValue();
-        }
-    }
-
-    public void increaseNumberOfClasses(int increase) {
-        this.numberOfClasses += increase;
-    }
-
-    public void increaseNumberOfMethods(int increase) {
-        this.numberOfMethods += increase;
-    }
-
-    public void increaseNumberOfContracts(ContractType contractType, int increase) {
-        int current = numberOfContracts.get(contractType);
-        this.numberOfContracts.replace(contractType, current + increase);
-        this.totalNumberOfContracts += increase;
-    }
-
-    public void addClass(JavaClass javaClass) {
+    public void addJavaClass(JavaClass javaClass) {
         this.javaClasses.add(javaClass);
     }
 }
