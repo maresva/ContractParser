@@ -1,12 +1,17 @@
 package cz.zcu.kiv.contractparser;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sun.javafx.iio.ios.IosDescriptor;
 import cz.zcu.kiv.contractparser.comparator.JavaFolderCompareReport;
+import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.apache.log4j.Logger;
 
 import javax.annotation.*;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
 
 
@@ -18,26 +23,41 @@ import java.util.List;
 @WillClose
 public class Main {
 
-    final Logger logger = Logger.getLogger(String.valueOf(Main.class));
+    private static final Logger logger = Logger.getLogger(String.valueOf(Main.class));
 
     public static void main(String[] args) {
 
+        logger.info("Starting Main ...");
 
-        //List<JavaFile> javaFilesX = ContractExtractorApi.retrieveContractsFromFolder("D:\\My\\_ZCU\\dp\\Test Data (anot-20170926T)\\guava\\guava-10.0", contractTypes, false);
+        //IOServices.saveJsonToFile("JSON", "blbost::java", new File("D:/test"));
 
-        //JavaFile javaFileX = ContractExtractorApi.retrieveContracts("D:\\test\\guava-10.0\\com\\google\\common\\base\\CharMatcher.java", false);
-        //JavaFile javaFileY = ContractExtractorApi.retrieveContracts("D:\\test\\guava-13.0\\com\\google\\common\\base\\CharMatcher.java", false);
+        //System.out.println(ResourceHandler.getMessage("errorFilesNotRetrieved2", "TEST", "test2"));
 
-        //JavaFile javaFileX = ContractExtractorApi.retrieveContracts("D:\\test\\testCaseX.java", false);
+        //List<JavaFile> javaFilesX = ContractExtractorApi.retrieveContractsFromFolder(new File("D:\\test\\guava-10.0"), false);
+
+        //ContractExtractorApi.retrieveContractsFromFolderExportToJson(new File("D:\\test\\guava-10.0"), new File("D:/test/guavaOUTJson"), true, true);
+
+        //JavaFile javaFileX = ContractExtractorApi.retrieveContracts(new File("D:\\test\\guava-10.0\\com\\google\\common\\cache\\CacheBuilder.java"), false);
+        //JavaFile javaFileY = ContractExtractorApi.retrieveContracts(new File("D:\\test\\guava-13.0\\com\\google\\common\\base\\CharMatcher.java"), false);
+
+        //ContractComparatorApi.compareJavaFoldersAndExportToJson(new File("D:\\test\\guava-10.0\\com"), new File("D:\\test\\guava-14.0\\com"), true, true, new File("D:\\test\\ExportTest"), true);
+
+        //JavaFile javaFileX = ContractExtractorApi.retrieveContracts(new File("D:\\test\\testCase.java"), false);
         //JavaFile javaFileY = ContractExtractorApi.retrieveContracts("D:\\test\\testCaseY.java", false);
 
+        //IOServices.saveObjectAsJson(javaFileX, "TESTJSON", new File("D:/test/1234"), true);
 
-        JavaFolderCompareReport javaFolderCompareReport = ContractComparatorApi.compareJavaFolders("D:\\test\\guava-10.0",
-                "D:\\test\\guava-14.0", false, false);
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        String json = gson.toJson("RemovalListener<? super K, ? super V> removalListener");
+        System.out.println(json);
 
-        ContractComparatorApi.exportJavaFolderCompareReportToJson(javaFolderCompareReport, new File("D:\\test\\compareJson"));
-        
-        System.out.println(javaFolderCompareReport);
+        System.out.println("END");
+
+        //JavaFolderCompareReport javaFolderCompareReport = ContractComparatorApi.compareJavaFolders("D:\\test\\guava-10.0","D:\\test\\guava-14.0", false, false);
+
+        //ContractComparatorApi.exportJavaFolderCompareReportToJson(javaFolderCompareReport, new File("D:\\test\\compareJson"));
+
+        //JavaFile javaFile = ContractExtractorApi.retrieveContracts(new File("D:/test/BLBOST.java"), true);
 
         //JavaFileCompareReport javaFileCompareReport = javaFileX.compareJavaFileTo(javaFileY, true, false);
         //exportJavaFileCompareReportToJson(javaFileCompareReport, new File("D:\\test\\compareJson"));
@@ -45,29 +65,6 @@ public class Main {
 
         //IOServices.exportToJson(javaFile, new File("D:/test/mainParserJson"));
         //IOServices.exportManyToJson(javaFiles, new File("D:/test/JSON_export"));
-    }
-
-    private static void printOutJavaFiles(){
-
-        List<JavaFile> javaFilesX = ContractExtractorApi.retrieveContractsFromFolder("D:\\test\\guava-10.0", null, false);
-        List<JavaFile> javaFilesY = ContractExtractorApi.retrieveContractsFromFolder("D:\\test\\\\guava-19.0", null, false);
-
-        for(JavaFile javaFile : javaFilesX) {
-
-            if(javaFile.getJavaFileStatistics().getTotalNumberOfContracts() > 0){
-                System.out.println(javaFile.getPath() + " ::: " + javaFile.getJavaFileStatistics().getTotalNumberOfContracts());
-            }
-        }
-
-        System.out.println("----------------------------------------------------------------------------");
-        System.out.println("----------------------------------------------------------------------------");
-
-        for(JavaFile javaFile : javaFilesY) {
-
-            if(javaFile.getJavaFileStatistics().getTotalNumberOfContracts() > 0){
-                System.out.println(javaFile.getPath() + " ::: " + javaFile.getJavaFileStatistics().getTotalNumberOfContracts());
-            }
-        }
     }
 
 

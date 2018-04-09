@@ -1,166 +1,126 @@
 package cz.zcu.kiv.contractparser;
 
-import com.github.javaparser.ParseProblemException;
-import cz.zcu.kiv.contractparser.comparator.JavaFolderComparator;
-import cz.zcu.kiv.contractparser.comparator.JavaFolderCompareReport;
-import cz.zcu.kiv.contractparser.io.IOServices;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ContractType;
 import cz.zcu.kiv.contractparser.model.JavaFile;
-import cz.zcu.kiv.contractparser.parser.ContractParser;
-import cz.zcu.kiv.contractparser.parser.ParserFactory;
-import cz.zcu.kiv.contractparser.parser.JavaFileParser;
-import cz.zcu.kiv.contractparser.parser.Simplifier;
-import org.apache.log4j.Logger;
+import cz.zcu.kiv.contractparser.parser.*;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * This class provides API for ContractParser. Its methods are meant to be called from outside this library
- * and all of them provide way to retrieve contract from file(s).
+ * and all of them provide way to retrieve contracts from file or folder.
  *
  * @author Vaclav Mares
  */
 public class ContractExtractorApi {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(ContractExtractorApi.class));
+    /** Instance of ContractExtractor which is used to call extraction methods */
+    private static ContractExtractor contractExtractor = new ContractExtractor();
 
     /**
-     * This method extracts Design by contract constructions from given file
+     * This method extracts Design by contract constructions from given file.
      *
-     * @param file  Input file with java source file (*.class or *.java)
-     * @return  ContractFile containing structure of the file with contracts
+     * @param file                      Input file with java source file (*.class or *.java)
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     * @param contractTypes             Specifies which contract types should be extracted
+     * @return                          JavaFile containing structure of the file with contracts
      */
-    public static JavaFile retrieveContracts(File file, HashMap<ContractType, Boolean> contractTypes,
-                                             boolean removeNonContractObjects) {
+    public static JavaFile retrieveContracts(File file, boolean removeNonContractObjects,
+                                             HashMap<ContractType, Boolean> contractTypes) {
 
-        ParserFactory parserFactory = new ParserFactory();
-        ContractParser contractParser;
-
-        JavaFile javaFile;
-        ExtendedJavaFile extendedJavaFile;
-
-        // parse raw Java file to get structured data
-        try {
-            extendedJavaFile = JavaFileParser.parseFile(file);
-
-            if(extendedJavaFile == null){
-                return null;
-            }
-
-            for(int i = 0 ; i < 1 ; i++) {
-                // If Guava is selected - search for Guava Design by Contracts
-                if (contractTypes == null || contractTypes.get(ContractType.GUAVA)) {
-                    contractParser = parserFactory.getParser(ContractType.GUAVA);
-                    extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
-                }
-            }
-
-            // If JSR305 is selected - search for JSR305 Design by Contracts
-            if (contractTypes == null || contractTypes.get(ContractType.JSR305)) {
-                contractParser = parserFactory.getParser(ContractType.JSR305);
-                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
-            }
-
-            //logger.debug("Java file parsed: " + javaFile.getPath() + " (Contracts found: " +
-            // javaFile.getJavaFileStatistics().getTotalNumberOfContracts() + ")");
-        }
-        catch(ParseProblemException e){
-            logger.error("Could not parse file " + file.toString());
-            logger.error(e.getMessage());
-            return null;
-        }
-
-        // simplify ExtendedJavaFile to JavaFile for export and display purposes
-        javaFile = Simplifier.simplifyExtendedJavaFile(extendedJavaFile, removeNonContractObjects);
-
-        // if checked remove all classes/methods that do not have any contracts or even return null
-        if(removeNonContractObjects) {
-            javaFile = Simplifier.removeNonContractObjects(javaFile);
-        }
-        
-        return javaFile;
+        return contractExtractor.retrieveContracts(file, removeNonContractObjects, contractTypes);
     }
 
 
+    /**
+     * This method extracts Design by contract constructions from given file.
+     *
+     * @param file                      Input file with java source file (*.class or *.java)
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     * @return                          JavaFile containing structure of the file with contracts
+     */
     public static JavaFile retrieveContracts(File file, boolean removeNonContractObjects){
 
-        return retrieveContracts(file, null, removeNonContractObjects);
+        return retrieveContracts(file, removeNonContractObjects, null);
     }
 
 
     /**
-     * This method extracts Design by contract constructions from file with input file name
+     * This method extracts Design by contract constructions from every *.java and *.class file from give folder.
      *
-     * @param fileName  Input fileName of file with java source file (*.class or *.java)
-     * @return  ExtendedJavaFile containing structure of the file with contracts
+     * @param folder                    Input folder with java source files (*.class or *.java)
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     * @param contractTypes             Specifies which contract types should be extracted
+     * @return                          List of JavaFiles containing structure of the file with contracts
      */
-    public static JavaFile retrieveContracts(String fileName, HashMap<ContractType, Boolean> contractType,
-                                             boolean removeNonContractObjects) {
+    public static List<JavaFile> retrieveContractsFromFolder(File folder, boolean removeNonContractObjects,
+                                                             HashMap<ContractType, Boolean> contractTypes) {
 
-        File file = IOServices.getFile(fileName);
-        return retrieveContracts(file, contractType, removeNonContractObjects);
-    }
-
-    public static JavaFile retrieveContracts(String fileName, boolean removeNonContractObjects) {
-
-        return retrieveContracts(fileName, null, removeNonContractObjects);
+        return contractExtractor.retrieveContractsFromFolder(folder, removeNonContractObjects, contractTypes);
     }
 
 
     /**
-     * This method extracts Design by contract constructions from every *.java and *.class file from give folder
+     * This method extracts Design by contract constructions from every *.java and *.class file from give folder.
      *
-     * @param folder  Input file with java source file (*.class or *.java)
-     * @return  List of JavaFiles containing structure of the file with contracts
+     * @param folder                    Input folder with java source files (*.class or *.java)
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     * @return                          List of JavaFiles containing structure of the file with contracts
      */
-    public static List<JavaFile> retrieveContractsFromFolder(File folder, HashMap<ContractType, Boolean> contractType,
-                                                             boolean removeNonContractObjects) {
-
-        List<JavaFile> contracts = new ArrayList<>();
-        List<File> files = IOServices.getFilesFromFolder(folder, null);
-
-        for (final File fileEntry : files) {
-            if(fileEntry != null) {
-
-                JavaFile javaFile = retrieveContracts(fileEntry, contractType, removeNonContractObjects);
-
-                if(javaFile != null) {
-                    contracts.add(javaFile);
-                }
-            }
-        }
-
-        return contracts;
-    }
-
     public static List<JavaFile> retrieveContractsFromFolder(File folder, boolean removeNonContractObjects) {
 
-        return retrieveContractsFromFolder(folder, null, removeNonContractObjects);
+        return retrieveContractsFromFolder(folder, removeNonContractObjects, null);
     }
 
 
     /**
-     * This method extracts Design by contract constructions from every *.java and *.class file from folder with
-     * given fileName
+     * This method extracts Design by contract constructions from every *.java and *.class file from give folder.
+     * Extracted JavaFiles are then converted to JSON and saved to given location. This method should be used
+     * if there is no future work with JavaFiles besides export as it is less memory demanding.
      *
-     * @param folderName  Input file with java source file (*.class or *.java)
-     * @return  List of JavaFiles containing structure of the file with contracts
+     * @param inputFolder               Input folder with java source files (*.class or *.java)
+     * @param outputFolder              Output folder for generated JSON files
+     * @param prettyPrint               Whether JSON should be in human readable form or not
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     * @param contractTypes             Specifies which contract types should be extracted
      */
-    public static List<JavaFile> retrieveContractsFromFolder(String folderName, HashMap<ContractType,
-            Boolean> contractType, boolean removeNonContractObjects) {
+    public static void retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
+            boolean removeNonContractObjects, HashMap<ContractType, Boolean> contractTypes) {
 
-        File file = IOServices.getFile(folderName);
-        return retrieveContractsFromFolder(file, contractType, removeNonContractObjects);
+        contractExtractor.retrieveContractsFromFolderExportToJson(inputFolder, outputFolder, prettyPrint,
+                removeNonContractObjects, contractTypes);
+    }
+
+
+    /**
+     * This method extracts Design by contract constructions from every *.java and *.class file from give folder.
+     * Extracted JavaFiles are then converted to JSON and saved to given location. This method should be used
+     * if there is no future work with JavaFiles besides export as it is less memory demanding.
+     *
+     * @param inputFolder               Input folder with java source files (*.class or *.java)
+     * @param outputFolder              Output folder for generated JSON files
+     * @param prettyPrint               Whether JSON should be in human readable form or not
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     */
+    public static void retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
+                                                               boolean removeNonContractObjects) {
+
+        retrieveContractsFromFolderExportToJson(inputFolder, outputFolder, prettyPrint, removeNonContractObjects,
+                null);
     }
 
     
-    public static List<JavaFile> retrieveContractsFromFolder(String folderName, boolean removeNonContractObjects) {
+    /**
+     * Export given list of JavaFiles to JSON.
+     *
+     * @param javaFiles     Input list of JavaFiles
+     * @param outputFolder  Output folder for generated JSON files
+     * @param prettyPrint   Whether JSON should be in human readable form or not
+     */
+    public static void exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder, boolean prettyPrint) {
 
-        File file = IOServices.getFile(folderName);
-        return retrieveContractsFromFolder(file, null, removeNonContractObjects);
+        contractExtractor.exportJavaFilesToJson(javaFiles, outputFolder, prettyPrint);
     }
 }

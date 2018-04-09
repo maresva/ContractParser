@@ -29,10 +29,7 @@ public class Contract {
     /** Contract condition expression represented as a String (first argument of contract function)*/
     private String expression;
 
-    /** Error message which is shown when the contract is broken (second argument of contract function) */
-    private String errorMessage;
-
-    /** All other arguments used to specify contract. Usually serve as a message template placeholders */
+    /** All other arguments used to specify contract. Usually used for error messages */
     private List<String> arguments;
 
     /** Java file from where the contract has been extracted */
@@ -46,13 +43,12 @@ public class Contract {
 
 
     public Contract(ContractType contractType, ConditionType conditionType, String completeExpression, String function,
-                    String expression, String errorMessage, List<String> arguments) {
+                    String expression, List<String> arguments) {
         this.contractType = contractType;
         this.conditionType = conditionType;
         this.completeExpression = completeExpression;
         this.function = function;
         this.expression = expression;
-        this.errorMessage = errorMessage;
 
         if(arguments != null){
             this.arguments = arguments;
@@ -64,10 +60,10 @@ public class Contract {
 
 
     /**
-     * Compare this contract to other contract
+     * Compare this contract to other contract.
      *
-     * @param otherContract
-     * @return
+     * @param otherContract     Contract to be compared with
+     * @return                  Comparison of both contracts
      */
     public ContractComparison compareTo(Contract otherContract) {
         
@@ -83,7 +79,6 @@ public class Contract {
                 ", conditionType=" + conditionType +
                 ", function='" + function + '\'' +
                 ", expression='" + expression + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
                 ", arguments=" + arguments +
                 ", file='" + file + '\'' +
                 ", className='" + className + '\'' +
@@ -111,10 +106,6 @@ public class Contract {
 
     public List<String> getArguments() {
         return arguments;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
     }
 
     public String getFile() {
@@ -147,10 +138,6 @@ public class Contract {
 
     public void setArguments(List<String> arguments) {
         this.arguments = arguments;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     public void setFile(String file) {

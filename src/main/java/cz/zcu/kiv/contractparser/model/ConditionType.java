@@ -6,7 +6,7 @@ package cz.zcu.kiv.contractparser.model;
  * @author Vaclav Mares
  */
 public enum ConditionType {
-    PRE,
-    POST,
-    INVARIANT
+    PRE,        // contract pre-condition
+    POST,       // contract post-condition
+    INVARIANT   // class invariant
 }

@@ -22,7 +22,7 @@ class ContractManagerApiTest {
         contractTypes.put(ContractType.GUAVA, true);
         contractTypes.put(ContractType.JSR305, true);
 
-        JavaFile javaFile = retrieveContracts(file, contractTypes, false);
+        JavaFile javaFile = retrieveContracts(file, false, contractTypes);
 
         assertEquals(4, javaFile.getJavaFileStatistics().getTotalNumberOfContracts());
     }

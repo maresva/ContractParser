@@ -18,11 +18,15 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
+ * This method extends visitor of JavaParser library and it provides means to extract methods from given Java file.
+ * It goes through all the methods of given file. From given information ExtendedJavaMethod is created and is saved
+ * to its parent class and file respectively.
+ *
  * @author Vaclav Mares
  */
 public class MethodVisitor extends VoidVisitorAdapter {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(JavaFileParser.class));
+    private final static Logger logger = Logger.getLogger(String.valueOf(JavaFileParser.class));
 
     /**
      * This method goes through method and saves all important elements such as signature or the body. Statements
@@ -52,7 +56,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         Node topParent = null;
 
         if(nodeParent == null){
-            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getPath());
+            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getFullPath());
             return;
         }
 
@@ -72,7 +76,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         }
 
         if(topParent == null){
-            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getPath());
+            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getFullPath());
         }
         else {
 
@@ -112,19 +116,18 @@ public class MethodVisitor extends VoidVisitorAdapter {
                 if (extendedJavaFile.getExtendedJavaClasses().get(i) != null) {
 
                     String topParentName = "";
-                    if(topParent.getClass() == ClassOrInterfaceDeclaration.class){
+
+                    if (topParent.getClass() == ClassOrInterfaceDeclaration.class) {
 
                         ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) topParent;
                         topParentName = classOrInterfaceDeclaration.getNameAsString();
-                    }
-                    else if(topParent.getClass() == EnumDeclaration.class){
+                    } else if (topParent.getClass() == EnumDeclaration.class) {
 
                         EnumDeclaration enumDeclaration = (EnumDeclaration) topParent;
                         topParentName = enumDeclaration.getNameAsString();
                     }
 
-                    if (extendedJavaFile.getExtendedJavaClasses().get(i).getName()
-                            .compareTo(topParentName) == 0) {
+                    if (extendedJavaFile.getExtendedJavaClasses().get(i).getName().compareTo(topParentName) == 0) {
 
                         extendedJavaFile.getExtendedJavaClasses().get(i).addExtendedJavaMethod(extendedJavaMethod);
                         extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethods(1);
@@ -142,7 +145,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
      * @param node  Node to be analyzed
      * @return  true if node is perspective
      */
-    public boolean isNodePerspective(Node node){
+    private boolean isNodePerspective(Node node){
 
         // if the node is comment - return false
         if(node instanceof LineComment || node instanceof BlockComment)  {
@@ -152,11 +155,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
             String nodeString = node.toString();
 
             // library sometimes falsely returns commented code as a expression this work around stops it
-            if(nodeString.length() >= 2 && nodeString.charAt(0) == '/' && nodeString.charAt(1) == '/'){
-                return false;
-            }
-
-            return true;
+            return nodeString.length() < 2 || nodeString.charAt(0) != '/' || nodeString.charAt(1) != '/';
         }
     }
 }

@@ -3,13 +3,18 @@ package cz.zcu.kiv.contractparser.parser;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 
 /**
- * This class provides variety of methods used to parse Java source file to extract
- * design by contract constructions from it.
+ * Every contract parser has to implement this interface.
  *
  * @author Vaclav Mares
  */
 public interface ContractParser {
 
+    /**
+     * This method extracts design by contract constructions from given file.
+     *
+     * @param extendedJavaFile   extendedJavaFile with all necessary information about Java source file
+     * @return                   the same extendedJavaFile with newly added contracts
+     */
     ExtendedJavaFile retrieveContracts(ExtendedJavaFile extendedJavaFile);
 
 }

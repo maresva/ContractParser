@@ -4,12 +4,13 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.google.common.base.Preconditions;
+import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.*;
 import org.apache.log4j.Logger;
@@ -26,20 +27,19 @@ import static cz.zcu.kiv.contractparser.io.IOServices.decompileClassFile;
  */
 public class JavaFileParser {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(JavaFileParser.class));
+    /** Log4j logger for this class */
+    private final static Logger logger = Logger.getLogger(String.valueOf(JavaFileParser.class));
 
 
     /**
-     * Parses *.java or *.class file to create javaFile structure which contains all crucial information
-     * to retrieve design by contracts . It goes through the file and saves all the classes, methods and their
+     * Parses *.java or *.class file to create JavaFile structure which contains all crucial information
+     * to retrieve design by contracts. It goes through the file and saves all the classes, methods and their
      * parameters.
      *
      * @param file    Input file to be parsed
      * @return        ExtendedJavaFile with structured data
      */
     public static ExtendedJavaFile parseFile(File file) {
-
-        String tempFileName = "tempFile";
 
         ExtendedJavaFile extendedJavaFile = prepareFile(file);
 
@@ -51,9 +51,9 @@ public class JavaFileParser {
         File tempFile = null;
         if(extendedJavaFile.getFileType() == FileType.CLASS) {
 
-            tempFile = new File(tempFileName);
+            tempFile = new File(ResourceHandler.getProperties().getString("decompileTempFile"));
 
-            if(!decompileClassFile(file.getPath(), tempFileName)){
+            if(!decompileClassFile(file.getPath())){
                 return null;
             }
         }
@@ -68,7 +68,6 @@ public class JavaFileParser {
                 fileInputStream = new FileInputStream(file);
             }
         } catch (FileNotFoundException e) {
-            logger.error("Error while reading file.");
             logger.error(e.getMessage());
             return null;
         }
@@ -78,7 +77,7 @@ public class JavaFileParser {
         try {
             cu = com.github.javaparser.JavaParser.parse(fileInputStream);
         } catch (Exception e){
-            logger.warn(extendedJavaFile.getPath() + " could not be parsed due to exception: " + e.getClass());
+            logger.warn(ResourceHandler.getMessage("errorJavaParserNotParsed", extendedJavaFile.getFullPath()));
             logger.warn(e.getMessage());
             return null;
         }
@@ -88,32 +87,52 @@ public class JavaFileParser {
 
             for(Object node : nodeList) {
 
-                // if the node is class or interface declaration
-                if(node.getClass() == ClassOrInterfaceDeclaration.class){
+                // if the node is class, interface or enum declaration
+                if(node.getClass() == ClassOrInterfaceDeclaration.class || node.getClass() == EnumDeclaration.class) {
 
-                    // save the class/IF as extendedJavaClass
-                    ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) node;
+                    // if the node is class or interface declaration
+                    if (node.getClass() == ClassOrInterfaceDeclaration.class) {
 
-                    ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass(classDeclaration.getNameAsString(),
-                            prepareClassSignature(classDeclaration));
+                        // save the class/IF as extendedJavaClass
+                        ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) node;
 
-                    // save class constructors
-                    for(ConstructorDeclaration constructor : classDeclaration.getConstructors()){
+                        ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass(classDeclaration.getNameAsString(),
+                                prepareClassSignature(classDeclaration));
 
-                        ExtendedJavaMethod extendedJavaMethod = prepareContract(constructor);
-                        if(extendedJavaMethod!= null){
-                            extendedJavaClass.addExtendedJavaMethod(extendedJavaMethod);
-                            extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethods(1);
+                        // save class constructors
+                        for (ConstructorDeclaration constructor : classDeclaration.getConstructors()) {
+
+                            ExtendedJavaMethod extendedJavaMethod = prepareContract(constructor);
+                            if (extendedJavaMethod != null) {
+                                extendedJavaClass.addExtendedJavaMethod(extendedJavaMethod);
+                                extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethods(1);
+                            }
                         }
-                    }
 
-                    // save annotations of the class
-                    for(AnnotationExpr annotationExpr : classDeclaration.getAnnotations()) {
-                        extendedJavaClass.addAnnotation(annotationExpr);
-                    }
+                        // save annotations of the class
+                        for (AnnotationExpr annotationExpr : classDeclaration.getAnnotations()) {
+                            extendedJavaClass.addAnnotation(annotationExpr);
+                        }
 
-                    extendedJavaFile.addExtendedJavaClass(extendedJavaClass);
-                    extendedJavaFile.getJavaFileStatistics().increaseNumberOfClasses(1);
+                        extendedJavaFile.addExtendedJavaClass(extendedJavaClass);
+                        extendedJavaFile.getJavaFileStatistics().increaseNumberOfClasses(1);
+                    }
+                    // if the node is enum declaration
+                    else if (node.getClass() == EnumDeclaration.class) {
+
+                        EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+
+                        ExtendedJavaClass extendedJavaClass = new ExtendedJavaClass(enumDeclaration.getNameAsString(),
+                                prepareEnumSignature(enumDeclaration));
+
+                        // save annotations of the class
+                        for (AnnotationExpr annotationExpr : enumDeclaration.getAnnotations()) {
+                            extendedJavaClass.addAnnotation(annotationExpr);
+                        }
+
+                        extendedJavaFile.addExtendedJavaClass(extendedJavaClass);
+                        extendedJavaFile.getJavaFileStatistics().increaseNumberOfClasses(1);
+                    }
                 }
             }
         }
@@ -125,22 +144,23 @@ public class JavaFileParser {
         try {
             fileInputStream.close();
         } catch (IOException e) {
-            logger.warn("Input stream for Java file parser couldn't be closed.");
             logger.warn(e.getMessage());
         }
-
-
-        // TODO vyresit, proc se soubor obcas nemaze
+        
         if(tempFile != null && tempFile.exists()){
-            if(!tempFile.delete()){
-                //logger.warn("Temporary file could not be deleted.");
-            }
+            tempFile.delete();
         }
 
         return extendedJavaFile;
     }
 
 
+    /**
+     * Prepares ExtendedJavaMethod object for contract extraction.
+     *
+     * @param constructor   Constructor declaration
+     * @return              Prepared ExtendedJavaMethod
+     */
     private static ExtendedJavaMethod prepareContract(ConstructorDeclaration constructor){
 
         // initialize ExtendedJavaMethod object and save all relevant information
@@ -175,8 +195,11 @@ public class JavaFileParser {
     /**
      * This method prepares file to be parsed and it creates empty javaFile which is later filled with data.
      * It can process *.java or *.class files.
+     *
+     * @param file  File to be prepared
+     * @return      ExtendedJavaFile prepared based on information gathered from given file
      */
-    public static ExtendedJavaFile prepareFile(File file) {
+    private static ExtendedJavaFile prepareFile(File file) {
 
         // check whether file exists and is not directory
         Preconditions.checkArgument(file.exists(), "Given file doesn't exist.");
@@ -212,16 +235,23 @@ public class JavaFileParser {
         }
 
         extendedJavaFile.setFileName(fileName);
-        extendedJavaFile.setPath(file.getPath());
+        extendedJavaFile.setFullPath(file.getAbsolutePath());
+        extendedJavaFile.setShortPath(file.getPath());
 
         return extendedJavaFile;
     }
 
 
-    public static String prepareClassSignature(ClassOrInterfaceDeclaration classOrInterfaceDeclaration){
+    /**
+     * Prepares signature of class or interface from complex object to simple String.
+     *
+     * @param classOrInterfaceDeclaration   ClassOrInterfaceDeclaration
+     * @return                              String with signature
+     */
+    private static String prepareClassSignature(ClassOrInterfaceDeclaration classOrInterfaceDeclaration){
 
         StringBuilder signature = new StringBuilder();
-        for(Modifier modifier : classOrInterfaceDeclaration.getModifiers()){
+        for(Modifier modifier : classOrInterfaceDeclaration.getModifiers()) {
 
             signature.append(modifier.toString().toLowerCase()).append(" ");
         }
@@ -235,6 +265,28 @@ public class JavaFileParser {
 
         signature.append(" ");
         signature.append(classOrInterfaceDeclaration.getNameAsString());
+
+        return signature.toString();
+    }
+
+
+    /**
+     * Prepares signature of enum from complex object to simple String.
+     *
+     * @param enumDeclaration   EnumDeclaration
+     * @return                  String with signature
+     */
+    private static String prepareEnumSignature(EnumDeclaration enumDeclaration){
+
+        StringBuilder signature = new StringBuilder();
+        for(Modifier modifier : enumDeclaration.getModifiers()) {
+
+            signature.append(modifier.toString().toLowerCase()).append(" ");
+        }
+
+        signature.append("enum");
+        signature.append(" ");
+        signature.append(enumDeclaration.getNameAsString());
 
         return signature.toString();
     }

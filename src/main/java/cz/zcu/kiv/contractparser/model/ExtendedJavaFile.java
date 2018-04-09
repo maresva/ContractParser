@@ -19,13 +19,11 @@ public class ExtendedJavaFile extends JavaFile{
         extendedJavaClasses = new ArrayList<>();
     }
 
+    
     @Override
     public String toString() {
-        return "ExtendedJavaFile{" +
-                "fileName='" + fileName + '\'' +
-                "path='" + path + '\'' +
-                ", fileType=" + fileType +
-                ", extendedJavaClasses=" + extendedJavaClasses +
+        return super.toString() + "ExtendedJavaFile{" +
+                "extendedJavaClasses=" + extendedJavaClasses +
                 '}';
     }
 

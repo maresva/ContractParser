@@ -5,6 +5,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
+import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.*;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
 import org.apache.log4j.Logger;
@@ -13,22 +14,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * GuavaParser provides means to extract contracts of Guava type from given Extended Java File
+ *
  * @author Vaclav Mares
  */
 public class GuavaParser implements ContractParser {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(ContractParser.class));
-
-    final static String[] PRECONDITIONS_METHODS = {"checkArgument", "checkState", "checkNotNull", "checkElementIndex",
-            "badElementIndex", "checkPositionIndex", "badPositionIndex", "checkPositionIndexes",
+    /** Names of Guava Precondition methods. Those methods are used as to realize contracts. */
+    private final static String[] PRECONDITIONS_METHODS = {"checkArgument", "checkState", "checkNotNull",
+            "checkElementIndex", "badElementIndex", "checkPositionIndex", "badPositionIndex", "checkPositionIndexes",
             "badPositionIndexes"};
 
     
     /**
-     * This method extracts Design by contract constructions from given file
+     * This method extracts design by contract constructions of Guava Preconditions type from given file.
      *
-     * @param extendedJavaFile Parsed input java file
-     * @return ContractFile containing structure of the file with contracts
+     * @param extendedJavaFile   extendedJavaFile with all necessary information about Java source file
+     * @return                   the same extendedJavaFile with newly added contracts
      */
     @Override
     public ExtendedJavaFile retrieveContracts(ExtendedJavaFile extendedJavaFile) {
@@ -40,36 +42,36 @@ public class GuavaParser implements ContractParser {
         }
 
         // for each class
-        for (int i = 0; i < extendedJavaClasses.size() ; i++) {
+        for (ExtendedJavaClass extendedJavaClass : extendedJavaClasses) {
 
             // for each method
-            for (int j = 0; j < extendedJavaClasses.get(i).getExtendedJavaMethods().size() ; j++) {
+            for (int j = 0; j < extendedJavaClass.getExtendedJavaMethods().size(); j++) {
 
                 boolean methodHasContract = false;
 
                 // for each method body node
-                for(int k = 0; k < extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getBody().size() ; k++) {
+                for (int k = 0; k < extendedJavaClass.getExtendedJavaMethods().get(j).getBody().size(); k++) {
 
-                    Node node = extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getBody().get(k);
+                    Node node = extendedJavaClass.getExtendedJavaMethods().get(j).getBody().get(k);
 
                     Contract contract = evaluateExpression(node);
 
-                    if(contract != null){
+                    if (contract != null) {
 
-                        if(extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getContracts().size() == 0) {
+                        if (extendedJavaClass.getExtendedJavaMethods().get(j).getContracts().size() == 0) {
                             methodHasContract = true;
                         }
 
-                        contract.setFile(extendedJavaFile.getPath());
-                        contract.setClassName(extendedJavaClasses.get(i).getName());
-                        contract.setMethodName(extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).getSignature());
+                        contract.setFile(extendedJavaFile.getShortPath());
+                        contract.setClassName(extendedJavaClass.getName());
+                        contract.setMethodName(extendedJavaClass.getExtendedJavaMethods().get(j).getSignature());
 
-                        extendedJavaClasses.get(i).getExtendedJavaMethods().get(j).addContract(contract);
+                        extendedJavaClass.getExtendedJavaMethods().get(j).addContract(contract);
                         extendedJavaFile.getJavaFileStatistics().increaseNumberOfContracts(ContractType.GUAVA, 1);
                     }
                 }
 
-                if(methodHasContract){
+                if (methodHasContract) {
                     extendedJavaFile.getJavaFileStatistics().increaseNumberOfMethodsWithContracts(1);
                 }
             }
@@ -79,6 +81,13 @@ public class GuavaParser implements ContractParser {
     }
 
 
+    /**
+     * This method evaluates given Node and determines whether it is a Guava contract or not. If so contract is prepared
+     * otherwise null is returned.
+     *
+     * @param node  Node - complex object representing line of code
+     * @return      prepared Contract or null
+     */
     private Contract evaluateExpression (Node node){
 
         // try if given is a method call (Guava contract is always a method call)
@@ -95,13 +104,22 @@ public class GuavaParser implements ContractParser {
 
                 if(preconditionMethod.compareTo(methodName) == 0){
 
-                    // TODO zkontrolovat jestli je scope nic nebo Preconditions nebo com.google.common.base.Preconditions
-                    //System.out.println("SCOPE: " + methodCallExpr.getScope().get());
+                    // check the scope of method - it has to have short Preconditions.* or full scope
+                    // com.google.common.base.Preconditions.* or it has to be empty
+                    if(methodCallExpr.getScope() != null && methodCallExpr.getScope().isPresent()) {
+                        String scope = methodCallExpr.getScope().get().toString();
 
-                    // get method call arguments - we are interested in first two (expression and error message)
+                        if(scope.compareTo(ResourceHandler.getProperties().getString("guavaPreconditionFullScope"))
+                                != 0 && scope.compareTo(ResourceHandler.getProperties().
+                                getString("guavaPreconditionShortScope")) != 0 && scope.length() != 0){
+
+                            return null;
+                        }
+                    }
+
+                    // get method call arguments
                     NodeList<Expression> arguments = methodCallExpr.getArguments();
 
-                    String errorMessage = "";
                     List<String> stringArguments = new ArrayList<>();
 
                     // Guava contracts always have at least one argument
@@ -109,18 +127,13 @@ public class GuavaParser implements ContractParser {
 
                         String parameterExpression = arguments.get(0).toString();
 
-                        // second argument (message or message template) is optional
-                        if(arguments.size() > 1){
-                            errorMessage = arguments.get(1).toString();
-                        }
-
-                        // other arguments are used to fill parameters into message template
-                        for(int i = 2 ; i < arguments.size() ; i++){
+                        // other arguments are used to further parametrize the contract (usually it contains error messages)
+                        for(int i = 1 ; i < arguments.size() ; i++){
                             stringArguments.add(arguments.get(i).toString());
                         }
 
                         return new Contract(ContractType.GUAVA, ConditionType.PRE, node.toString(), methodName,
-                                parameterExpression, errorMessage, stringArguments);
+                                parameterExpression, stringArguments);
                     }
                     else{
                         return null;

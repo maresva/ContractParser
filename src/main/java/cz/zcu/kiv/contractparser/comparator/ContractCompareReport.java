@@ -1,17 +1,35 @@
 package cz.zcu.kiv.contractparser.comparator;
 
+/**
+ * Instances of this class are created when comparing two contracts in the scope of JavaFile. It says what comparison
+ * between them is, if one or the other has been added or removed. It also contains expression of both contracts as well
+ * as parent method and class.
+ *
+ * @author Vaclav Mares
+ * */
 public class ContractCompareReport {
 
+    /** Enum describing comparison between two contracts */
     private ContractComparison contractComparison;
+
+    /** Name of parent class of contracts */
     private String className;
+
+    /** Name of parent method of contracts */
     private String methodName;
+
+    /** Expression of the first contract */
     private String thisContractExpression;
+
+    /** Expression of the second contract */
     private String otherContractExpression;
+
+    /** Enum describing whether one contract was added, removed or pair was found */
     private ApiState apiState;
 
 
-    public ContractCompareReport(ContractComparison contractComparison, String className, String methodName,
-                                 String thisContractExpression, String otherContractExpression, ApiState apiState) {
+    ContractCompareReport(ContractComparison contractComparison, String className, String methodName,
+                          String thisContractExpression, String otherContractExpression, ApiState apiState) {
         this.contractComparison = contractComparison;
         this.className = className;
         this.methodName = methodName;
@@ -34,6 +52,7 @@ public class ContractCompareReport {
     }
     
 
+    // Getters and setters
     public ContractComparison getContractComparison() {
         return contractComparison;
     }

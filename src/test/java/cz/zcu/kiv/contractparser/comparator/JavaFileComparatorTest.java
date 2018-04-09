@@ -11,12 +11,12 @@ class JavaFileComparatorTest {
     private JavaFile javaFileX;
     private ClassLoader classLoader;
 
-    public void setUp(){
+    private void setUp(){
 
         classLoader = getClass().getClassLoader();
         File fileJavaFileX = new File(classLoader.getResource("testFiles/testJavaFileX.java").getFile());
 
-        javaFileX =  ContractExtractorApi.retrieveContracts(fileJavaFileX, null, false);
+        javaFileX =  ContractExtractorApi.retrieveContracts(fileJavaFileX, false);
     }
 
 
@@ -55,7 +55,7 @@ class JavaFileComparatorTest {
 
     private JavaFile getTestJavaFile(String path) {
         File fileJavaFileY = new File(classLoader.getResource(path).getFile());
-        return ContractExtractorApi.retrieveContracts(fileJavaFileY, null, false);
+        return ContractExtractorApi.retrieveContracts(fileJavaFileY, false);
     }
 
 }

@@ -2,9 +2,22 @@ package cz.zcu.kiv.contractparser.parser;
 
 import cz.zcu.kiv.contractparser.model.*;
 
+/**
+ * This method provides to means to do transition from ExtendedJavaFile to JavaFile. It basically removes all
+ * information that are needed for contract extraction and retains only those that are useful for further work
+ * and export.
+ *
+ * @author Vaclav Mares
+ */
 public class Simplifier {
 
-    public static JavaFile simplifyExtendedJavaFile(ExtendedJavaFile extendedJavaFile, boolean retrieveWholeApi) {
+    /**
+     * Simplifies the input ExtendedJavaFile by discarding data that are no longer useful and creates JavaFile.
+     *
+     * @param extendedJavaFile  ExtendedJavaFile to be simplified
+     * @return                  JavaFile created from ExtendedJavaFile
+     */
+    public static JavaFile simplifyExtendedJavaFile(ExtendedJavaFile extendedJavaFile) {
 
         if(extendedJavaFile == null){
             return null;
@@ -18,7 +31,8 @@ public class Simplifier {
              javaFile.addJavaClass(javaClass);
         }
 
-        javaFile.setPath(extendedJavaFile.getPath());
+        javaFile.setShortPath(extendedJavaFile.getShortPath());
+        javaFile.setFullPath(extendedJavaFile.getFullPath());
         javaFile.setFileName(extendedJavaFile.getFileName());
         javaFile.setFileType(extendedJavaFile.getFileType());
         javaFile.setJavaFileStatistics(extendedJavaFile.getJavaFileStatistics());
@@ -27,7 +41,13 @@ public class Simplifier {
     }
 
 
-    public static JavaClass simplifyJavaClass(ExtendedJavaClass extendedJavaClass) {
+    /**
+     * Simplifies the input ExtendedJavaClass by discarding data that are no longer useful and creates JavaClass.
+     *
+     * @param extendedJavaClass  ExtendedJavaClass to be simplified
+     * @return                  JavaClass created from ExtendedJavaClass
+     */
+    private static JavaClass simplifyJavaClass(ExtendedJavaClass extendedJavaClass) {
 
         if(extendedJavaClass == null){
             return null;
@@ -47,7 +67,13 @@ public class Simplifier {
         return javaClass;
     }
 
-    public static JavaMethod simplifyJavaMethod(ExtendedJavaMethod extendedJavaMethod) {
+    /**
+     * Simplifies the input ExtendedJavaMethod by discarding data that are no longer useful and creates JavaMethod.
+     *
+     * @param extendedJavaMethod  ExtendedJavaMethod to be simplified
+     * @return                  JavaMethod created from ExtendedJavaMethod
+     */
+    private static JavaMethod simplifyJavaMethod(ExtendedJavaMethod extendedJavaMethod) {
 
         if(extendedJavaMethod == null){
             return null;
@@ -62,6 +88,13 @@ public class Simplifier {
     }
 
 
+    /**
+     * This method removes all classes and methods that does not contain any contracts. It is useful for situations
+     * where many object doesn't have any contracts.
+     *
+     * @param javaFile  JavaFile to be reduced
+     * @return          JavaFile without non contract objects
+     */
     public static JavaFile removeNonContractObjects(JavaFile javaFile) {
 
         // if there is no contract in the whole file just return null

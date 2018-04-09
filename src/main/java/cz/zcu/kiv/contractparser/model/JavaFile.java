@@ -14,16 +14,19 @@ import java.util.List;
 public class JavaFile {
 
     /** Name of the original file */
-    String fileName;
+    private String fileName;
 
     /** Path of original file */
-    String path;
+    private String fullPath;
+
+    /** Path in shortest possible way in compare to other extracted files */
+    private String shortPath;
 
     /** Type of the original file (*.class or *.java) */
-    FileType fileType;
+    private FileType fileType;
 
     /** JavaFileStatistics about this JavaFile */
-    JavaFileStatistics javaFileStatistics;
+    private JavaFileStatistics javaFileStatistics;
 
 
     /** List of classes in the file */
@@ -37,6 +40,15 @@ public class JavaFile {
     }
 
 
+    /**
+     * Compare this JavaFile to other one. It creates report about their differences in API and contracts. Reporting of
+     * equal objects as well as those that don't contain contracts can be turned off.
+     *
+     * @param otherJavaFile             avaFile to be compared with
+     * @param reportEqual               Whether equal object should be reported or not
+     * @param reportNonContractChanges  Whether changes in objects that don't contain contracts should be reported or not
+     * @return                          JavaFileCompareReport containing all gathered information about comparison
+     */
     public JavaFileCompareReport compareJavaFileTo(JavaFile otherJavaFile, boolean reportEqual,
                                                    boolean reportNonContractChanges){
 
@@ -45,6 +57,11 @@ public class JavaFile {
     }
 
 
+    /**
+     * Retrieve all contracts from given JavaFile across all methods.
+     *
+     * @return  List of contracts
+     */
     public List<Contract> getContracts(){
 
         List<Contract> contracts = new ArrayList<>();
@@ -63,7 +80,8 @@ public class JavaFile {
     public String toString() {
         return "JavaFile{" +
                 "fileName='" + fileName + '\'' +
-                "path='" + path + '\'' +
+                "fullPath='" + fullPath + '\'' +
+                "shortPath='" + shortPath + '\'' +
                 ", fileType=" + fileType +
                 ", javaClasses=" + javaClasses +
                 '}';
@@ -80,8 +98,12 @@ public class JavaFile {
         return fileName + "." + fileType.toString().toLowerCase();
     }
 
-    public String getPath() {
-        return path;
+    public String getFullPath() {
+        return fullPath;
+    }
+
+    public String getShortPath() {
+        return shortPath;
     }
 
     public FileType getFileType() {
@@ -100,8 +122,12 @@ public class JavaFile {
         this.fileName = fileName;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setFullPath(String fullPath) {
+        this.fullPath = fullPath;
+    }
+
+    public void setShortPath(String shortPath) {
+        this.shortPath = shortPath;
     }
 
     public void setFileType(FileType fileType) {

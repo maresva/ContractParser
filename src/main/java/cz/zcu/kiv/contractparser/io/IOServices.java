@@ -4,8 +4,7 @@ package cz.zcu.kiv.contractparser.io;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.strobel.decompiler.Decompiler;
-import cz.zcu.kiv.contractparser.comparator.JavaFileCompareReport;
-import cz.zcu.kiv.contractparser.comparator.JavaFolderCompareReport;
+import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.*;
 import com.strobel.decompiler.PlainTextOutput;
 import org.apache.log4j.Logger;
@@ -13,24 +12,18 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * This class provides methods for IO operations such as get file extension or exporting to JSON.
+ * This class provides methods for IO operations such as getting file extension, exporting to JSON etc.
  *
  * @author Vaclav Mares
  */
 public class IOServices {
 
-    final static Logger logger = Logger.getLogger(String.valueOf(IOServices.class));
+    /** Log4j logger for this class */
+    private final static Logger logger = Logger.getLogger(String.valueOf(IOServices.class));
     
-
-    public static File getFile(String filename){
-
-        File file = new File(filename);
-
-        return file;
-    }
-
 
     /**
      * This method gets all files from given folder
@@ -45,13 +38,12 @@ public class IOServices {
             files = new ArrayList<>();
         }
 
-        if(folder == null || !folder.exists() || folder.isFile()){
-            logger.error("Given folder doesn't exist or it is a file. (" + folder + ")");
+        if(!checkFolder(folder)){
             return files;
         }
 
         try{
-            for (final File fileEntry : folder.listFiles()) {
+            for (final File fileEntry : Objects.requireNonNull(folder.listFiles())) {
 
                 if(fileEntry != null) {
                     if (fileEntry.isDirectory()) {
@@ -75,7 +67,7 @@ public class IOServices {
             }
         }
         catch (NullPointerException e){
-            logger.warn("Unable to get files from folder: " + folder);
+            logger.warn(ResourceHandler.getMessage("errorFilesNotRetrieved", folder));
             return files;
         }
 
@@ -88,7 +80,7 @@ public class IOServices {
      * like [name, extension]
      *
      * @param file  Input file
-     * @return      String array
+     * @return      String array with name and extension
      */
     public static String[] getFileNameAndExtension(File file){
 
@@ -111,10 +103,16 @@ public class IOServices {
     }
 
 
-    public static boolean decompileClassFile(String filename, String tempFile){
+    /**
+     * Decompiles given java class file to extract its source code.
+     *
+     * @param filename  Name of a file that should be decompiled
+     * @return  boolean if the decompilation was successful
+     */
+    public static boolean decompileClassFile(String filename){
 
-        // Error message that is set as a string in the decompiler library
-        String decompilerError = "!!! ERROR: Failed to load class " + filename + ".";
+        // Temporary file where is the decompilation stored
+        String tempFile = ResourceHandler.getProperties().getString("decompileTempFile");
 
         try {
             final FileOutputStream stream = new FileOutputStream(tempFile);
@@ -123,17 +121,17 @@ public class IOServices {
             Decompiler.decompile(filename, new PlainTextOutput(writer));
             writer.flush();
 
-            // Decompiler library writes error message as a first line of the file.
+            // Decompiler library writes fixed error message as a first line of the file.
             // Thus there has to be this kind of error check.
             BufferedReader bufferedReader = new BufferedReader(new FileReader(tempFile));
             String firstLine = bufferedReader.readLine();
 
-            if(firstLine.compareTo(decompilerError) == 0){
+            if(firstLine.compareTo(ResourceHandler.getMessage("decompilerError", filename)) == 0){
                 throw new Exception();
             }
         }
         catch (Exception e){
-            logger.error("File " + filename + " could not be decompiled.");
+            logger.error(ResourceHandler.getMessage("errorDecompileFail", filename));
             if(e.getMessage() != null) {
                 logger.error(e.getMessage());
             }
@@ -146,101 +144,69 @@ public class IOServices {
 
 
     /**
-     * This method exports given parsed java file to JSON
+     * Saves given object to file in JSON format.
      *
-     * @param javaFile  Input java file
-     * @param outputFolder  Output folder
+     * @param object            Object to be saved to file as a JSON
+     * @param filename          Name of the file where should be JSON saved
+     * @param outputFolder      Folder where should be the file saved
+     * @param prettyPrint       Whether JSON should be in human readable form or not
+     * @return                  True if operation was successful
      */
-    public static boolean exportJavaFileToJson(JavaFile javaFile, File outputFolder){
+    public static boolean saveObjectAsJson(Object object, String filename, File outputFolder, boolean prettyPrint) {
 
-        if(javaFile != null) {
+        String json = createJsonString(object, prettyPrint);
 
-            String json = createJsonString(javaFile, true);
-            return saveJsonToFile(json, outputFolder, escapeFilePath(javaFile.getPath()));
-        }
-        else {
-            return false;
-        }
+        return json != null && saveJsonToFile(json, filename, outputFolder);
+
     }
 
 
-    public static void exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder) {
+    /**
+     * Creates JSON string from given object. If the object is not support by Gson library exception is thrown.
+     * If prettyPrint flag is enabled output JSON is formatted to be human readable otherwise it is min JSON.
+     *
+     * @param object        Input object to be transformed to JSON
+     * @param prettyPrint   Whether JSON should be in human readable form or not
+     * @return              String with JSON or null in case of error
+     */
+    private static String createJsonString(Object object, boolean prettyPrint){
 
-        JavaFileStatistics globalJavaFileStatistics = new JavaFileStatistics();
-
-        boolean success = false;
-        if(checkFolder(outputFolder)) {
-            for (JavaFile javaFile : javaFiles) {
-                globalJavaFileStatistics.mergeStatistics(javaFile.getJavaFileStatistics());
-                if(exportJavaFileToJson(javaFile, outputFolder)){
-                    success = true;
-                }
-            }
-
-            if(success) {
-                exportStatistics(globalJavaFileStatistics, outputFolder);
-            }
+        if(object == null){
+            logger.error(ResourceHandler.getMessage("errorJsonObjectNull"));
+            return null;
         }
-    }
-
-
-    public static boolean exportJavaFileCompareReportToJson(JavaFileCompareReport javaFileCompareReport, File outputFolder) {
-
-        if(javaFileCompareReport != null) {
-
-            String json = createJsonString(javaFileCompareReport, true);
-            return saveJsonToFile(json, outputFolder, escapeFilePath(javaFileCompareReport.getThisFilePath()));
-        }
-        else {
-            return false;
-        }
-    }
-
-
-    public static void exportJavaFolderCompareRoportsToJson(JavaFolderCompareReport javaFolderCompareReport, File outputFolder) {
-
-        //JavaFileStatistics globalJavaFileStatistics = new JavaFileStatistics();
-
-        boolean success = false;
-        if(checkFolder(outputFolder)) {
-            for (JavaFileCompareReport javaFileCompareReport : javaFolderCompareReport.getJavaFileCompareReports()) {
-                if(exportJavaFileCompareReportToJson(javaFileCompareReport, outputFolder)){
-                    success = true;
-                }
-            }
-
-            if(success) {
-                exportStatistics(javaFolderCompareReport, outputFolder);
-            }
-        }
-    }
-
-
-
-
-    public static void exportStatistics(Object statisticsObject, File outputFolder){
-        
-        String json = createJsonString(statisticsObject, true);
-        saveJsonToFile(json, outputFolder, "_global_statistics");
-    }
-
-
-    public static String createJsonString(Object object, boolean prettyPrint){
 
         Gson gson;
+        String json = null;
 
+        // initialize Gson with pretty print if requested
         if(prettyPrint){
-            gson = new GsonBuilder().setPrettyPrinting().create();
+            gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         }
         else{
-            gson = new Gson();
+            gson = new GsonBuilder().disableHtmlEscaping().create();
         }
 
-        return gson.toJson(object);
+        try{
+            json = gson.toJson(object);
+        }
+        catch(Exception e){
+            logger.error(ResourceHandler.getMessage("errorJsonObjectUnsupportedClass", object.getClass()));
+            logger.error(e.getMessage());
+        }
+
+        return json;
     }
 
 
-    public static boolean saveJsonToFile(String json, File outputFolder, String filename) {
+    /**
+     *
+     * @param json          String containing object as a JSON
+     * @param filename      Name of the file where should be JSON saved
+     * @param outputFolder  Folder where should be the file saved
+     * @return              True if operation was successful
+     */
+    private static boolean saveJsonToFile(String json, String filename, File outputFolder) {
 
         if(checkFolder(outputFolder)) {
 
@@ -249,7 +215,6 @@ public class IOServices {
                 writer = new BufferedWriter(new FileWriter(outputFolder.toString() + "/" + filename + ".json"));
                 writer.write(json);
             } catch (IOException e) {
-                logger.error("Export to JSON could not be realised.");
                 logger.error(e.getMessage());
                 return false;
             } finally {
@@ -258,7 +223,6 @@ public class IOServices {
                         writer.close();
                     }
                 } catch (IOException e) {
-                    logger.warn("JSON writer could not be closed.");
                     logger.warn(e.getMessage());
                 }
             }
@@ -271,10 +235,21 @@ public class IOServices {
     }
 
 
+    /**
+     * Checks whether given File is a folder. If it doesn't exists it tries to created it.
+     *
+     * @param folder    File folder
+     * @return          True if folder is ready to use, false otherwise
+     */
     public static boolean checkFolder(File folder){
 
         if(folder == null){
-            logger.error("Given folder " + folder + " doesn't exist.");
+            logger.error(ResourceHandler.getMessage("errorFolderCheckNull"));
+            return false;
+        }
+
+        if(folder.isFile()){
+            logger.error(ResourceHandler.getMessage("errorFolderCheckFile", folder));
             return false;
         }
 
@@ -282,13 +257,13 @@ public class IOServices {
             boolean success = folder.mkdirs();
 
             if(!success){
-                logger.error("Given folder " + folder + " couldn't be created.");
+                logger.error(ResourceHandler.getMessage("errorFolderCheckCannotCreate", folder));
                 return false;
             }
         }
 
-        if(!folder.exists() || folder.isFile()){
-            logger.error("Given folder " + folder + " couldn't be created or it is a file.");
+        if(!folder.exists()){
+            logger.error(ResourceHandler.getMessage("errorFolderCheckCannotCreate", folder));
             return false;
         }
 
@@ -296,10 +271,19 @@ public class IOServices {
     }
 
 
+    /**
+     * Replaces characters in given path to allow use it as a file name. Characters are replaced with other
+     * based on properties.
+     *
+     * @param path      String with path to be escaped
+     * @return          String with escaped path
+     */
     public static String escapeFilePath(String path) {
 
-        String replacedFilePath = path.replace("\\", "!");
-        replacedFilePath = replacedFilePath.replace(":", "&");
+        String replacedFilePath = path.replace("\\", ResourceHandler.getProperties()
+                .getString("charReplacementSlash"));
+        replacedFilePath = replacedFilePath.replace(":", ResourceHandler.getProperties()
+                .getString("charReplacementColon"));
 
         return replacedFilePath;
     }

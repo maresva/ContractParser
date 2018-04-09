@@ -1,7 +1,7 @@
 package cz.zcu.kiv.contractparser.comparator;
 
 /**
- * Values which can be used to determine type of contract.
+ * Values which can be used to determine differences between two contract.
  *
  * @author Vaclav Mares
  */

@@ -2,8 +2,22 @@ package cz.zcu.kiv.contractparser.comparator;
 
 import cz.zcu.kiv.contractparser.model.Contract;
 
+/**
+ * ContractComparator provides means to compare two contracts. It produces ContractComparison which says how the
+ * contracts differentiate.
+ *
+ * @author Vaclav Mares
+ * */
 public class ContractComparator {
 
+    /**
+     * This method compares two contracts. It produces ContractComparison which says how the contracts differentiate.
+     * It compares its types, condition types, expressions and other arguments.
+     *
+     * @param contractX     First contract to be compared
+     * @param contractY     Second contract to be compared
+     * @return              ContractComparison - ENUM specifying the difference between two contracts
+     */
     public ContractComparison compareContracts(Contract contractX, Contract contractY) {
 
         // if any of the these conditions is false - contracts are considered different
@@ -42,14 +56,10 @@ public class ContractComparator {
         }
 
 
-        // all of following comparisons are message related - if there are some differences they are considered minor
-        // compare messages of contracts
-        if(contractX.getErrorMessage().compareTo(contractY.getErrorMessage()) != 0){
-            return ContractComparison.MINOR_CHANGE;
-        }
+        // following comparisons are related to secondary arguments - any differences are considered minor
 
         // compare number of arguments
-        // different counts of arguments are considered just as changed as they are usually related to message
+        // different counts of arguments are considered also just as minor change as they are usually related to message
         if(contractX.getArguments().size() != contractY.getArguments().size()){
             return ContractComparison.MINOR_CHANGE;
         }
@@ -73,9 +83,17 @@ public class ContractComparator {
     }
 
 
+    /**
+     * This method compares expression of both contracts. As for now method only compares whether the expressions
+     * are the completely equal or not.
+     *
+     * @param contractXExpression   Expression of first contract to be compared
+     * @param contractYExpression   Expression of second contract to be compared
+     * @return                      ContractComparison - ENUM specifying the difference between the expression
+     */
     private ContractComparison compareContractExpressions(String contractXExpression, String contractYExpression) {
 
-        // TODO vetsi komplexita rozhodnuti nez booolean - rozebrat expression a pouzit SPECIALIZED/GENERALIZED
+        // This method can be largely improved to increase information gain from the contract comparison
 
         if(contractXExpression.compareTo(contractYExpression) == 0){
             return ContractComparison.EQUAL;

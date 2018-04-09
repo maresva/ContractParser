@@ -1,7 +1,6 @@
 package cz.zcu.kiv.contractparser.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -14,10 +13,10 @@ import java.util.List;
 public class JavaMethod {
 
     /** Signature of the method used for its identification */
-    protected String signature;
+    String signature;
 
     /** Determines whether the method is a constructor */
-    protected boolean isConstructor;
+    private boolean isConstructor;
 
     /** List of contracts in this method */
     protected List<Contract> contracts;

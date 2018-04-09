@@ -9,20 +9,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class provides means to compare two JavaFiles respectively their API and contracts.
+ *
+ * @author Vaclav Mares
+ * */
 public class JavaFileComparator {
 
+    /** Contract comparisons which are allowed for the first search loop. It says contract should be equal or almost equal */
     private final static List<ContractComparison> ALLOWED_COMPARISONS_FIRST_SEARCH = Arrays.asList(
             ContractComparison.EQUAL, ContractComparison.MINOR_CHANGE);
 
+    /** Contract comparisons which are allowed for the second search loop. It says contract should be equal except for expression */
     private final static List<ContractComparison> ALLOWED_COMPARISONS_SECOND_SEARCH = Arrays.asList(
             ContractComparison.GENERALIZED, ContractComparison.SPECIALIZED, ContractComparison.DIFFERENT_EXPRESSION);
 
+    /** Contract comparison of two current contracts */
     private static ContractComparison contractComparison = ContractComparison.DIFFERENT;
 
 
+    /**
+     * This method compares two JavaFiles and creates report about their differences in API and contracts. Reporting of
+     * equal objects as well as those that don't contain contracts can be turned off.
+     *
+     * @param javaFileX                 First JavaFile to be compared
+     * @param javaFileY                 Second JavaFile to be compared
+     * @param reportEqual               Whether equal object should be reported or not
+     * @param reportNonContractChanges  Whether changes in objects that don't contain contracts should be reported or not
+     * @return                          JavaFileCompareReport containing all gathered information about comparison
+     */
     public JavaFileCompareReport compareJavaFiles(JavaFile javaFileX, JavaFile javaFileY, boolean reportEqual, boolean reportNonContractChanges) {
 
-        JavaFileCompareReport javaFileCompareReport = new JavaFileCompareReport(javaFileX.getPath(), javaFileY.getPath());
+        JavaFileCompareReport javaFileCompareReport = new JavaFileCompareReport(javaFileX.getFullPath(), javaFileY.getFullPath());
 
         // go through all classes of file X
         for(int javaClassXId = 0; javaClassXId < javaFileX.getJavaClasses().size() ; javaClassXId++){
@@ -173,6 +191,14 @@ public class JavaFileComparator {
     }
 
 
+    /**
+     * Find a pair class for given class in given list of class. Class has to has to the same name. If class was found
+     * its ID is returned otherwise it is -1.
+     *
+     * @param javaClassX    JavaClass which pair should be found
+     * @param javaClassesY  List of classes where the pair should be
+     * @return              ID of class in list if found, -1 otherwise
+     */
     private int findPairClassY(JavaClass javaClassX, List<JavaClass> javaClassesY) {
 
         int classIndexY = 0;
@@ -199,6 +225,14 @@ public class JavaFileComparator {
     }
 
 
+    /**
+     * Find a pair method for given method in given list of methods. Method has to has to the same signature. If method
+     * was found its ID is returned otherwise it is -1.
+     *
+     * @param javaMethodX   JavaMethod which pair should be found
+     * @param javaMethodsY  List of methods where the pair should be
+     * @return              ID of method in list if found, -1 otherwise
+     */
     private int findPairMethodY(JavaMethod javaMethodX, List<JavaMethod> javaMethodsY) {
 
         int methodIndexY = 0;
@@ -225,6 +259,15 @@ public class JavaFileComparator {
     }
 
 
+    /**
+     * Find a pair contract for given contract in given list of contracts. Contracts has to have one of given allowed
+     * comparisons. If contract was found its ID is returned otherwise it is -1.
+     *
+     * @param contractX             Contract which pair should be found
+     * @param contractsY            List of contracts where the pair should be
+     * @param allowedComparisons    Which contracts comparisons are considered as found
+     * @return                      ID of contract in list if found, -1 otherwise
+     */
     private int findPairContract(Contract contractX, List<Contract> contractsY, List<ContractComparison> allowedComparisons) {
 
         int contractIndexY = 0;

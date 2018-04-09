@@ -6,6 +6,8 @@ import java.util.List;
 /**
  * Instances of this class provide report about comparison of two folders containing Java files. The comparison is in
  * terms of API and contract changes of individual files (classes and methods respectively).
+ *
+ * @author Vaclav Mares
  */
 public class JavaFolderCompareReport {
 
@@ -34,7 +36,7 @@ public class JavaFolderCompareReport {
     transient private List<JavaFileCompareReport> javaFileCompareReports;
 
 
-    public JavaFolderCompareReport(String thisFolderPath, String otherFolderPath) {
+    JavaFolderCompareReport(String thisFolderPath, String otherFolderPath) {
 
         this.thisFolderPath = thisFolderPath;
         this.otherFolderPath = otherFolderPath;
@@ -61,6 +63,7 @@ public class JavaFolderCompareReport {
     }
     
 
+    // Getters and setters
     public String getThisFolderPath() {
         return thisFolderPath;
     }

@@ -2,6 +2,12 @@ package cz.zcu.kiv.contractparser.model;
 
 import java.util.HashMap;
 
+/**
+ * Statistics about contract extraction from Java file. It contains number of classes and methods as well as number
+ * of contracts in the Java file.
+ *
+ * @author Vaclav Mares
+ */
 public class JavaFileStatistics {
 
     /** Total number of classes */
@@ -33,6 +39,12 @@ public class JavaFileStatistics {
     }
 
 
+    /**
+     * Add all data from other statistics to this statistics. It is used to create global statistics for
+     * multiple Java files.
+     *
+     * @param javaFileStatistics    Statistics that will be merge with this ones
+     */
     public void mergeStatistics(JavaFileStatistics javaFileStatistics) {
 
         this.numberOfClasses += javaFileStatistics.getNumberOfClasses();
