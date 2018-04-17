@@ -32,15 +32,6 @@ public class Contract {
     /** All other arguments used to specify contract. Usually used for error messages */
     private List<String> arguments;
 
-    /** Java file from where the contract has been extracted */
-    transient private String file;
-
-    /** Java class from where the contract has been extracted */
-    transient private String className;
-
-    /** Java method from where the contract has been extracted */
-    transient private String methodName;
-
 
     public Contract(ContractType contractType, ConditionType conditionType, String completeExpression, String function,
                     String expression, List<String> arguments) {
@@ -80,9 +71,6 @@ public class Contract {
                 ", function='" + function + '\'' +
                 ", expression='" + expression + '\'' +
                 ", arguments=" + arguments +
-                ", file='" + file + '\'' +
-                ", className='" + className + '\'' +
-                ", methodName='" + methodName + '\'' +
                 '}';
     }
     
@@ -108,18 +96,6 @@ public class Contract {
         return arguments;
     }
 
-    public String getFile() {
-        return file;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
     public void setContractType(ContractType contractType) {
         this.contractType = contractType;
     }
@@ -138,18 +114,6 @@ public class Contract {
 
     public void setArguments(List<String> arguments) {
         this.arguments = arguments;
-    }
-
-    public void setFile(String file) {
-        this.file = file;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
     }
 
     public String getCompleteExpression() {

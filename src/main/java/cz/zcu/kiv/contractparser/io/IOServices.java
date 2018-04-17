@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.strobel.decompiler.Decompiler;
 import cz.zcu.kiv.contractparser.ResourceHandler;
-import cz.zcu.kiv.contractparser.model.*;
 import com.strobel.decompiler.PlainTextOutput;
+import cz.zcu.kiv.contractparser.model.FileType;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -19,11 +19,14 @@ import java.util.Objects;
  *
  * @author Vaclav Mares
  */
-public class IOServices {
+public final class IOServices {
 
     /** Log4j logger for this class */
     private final static Logger logger = Logger.getLogger(String.valueOf(IOServices.class));
-    
+
+    /** Private constructor to prevent its use */
+    private IOServices() {
+    }
 
     /**
      * This method gets all files from given folder
@@ -139,6 +142,7 @@ public class IOServices {
             return false;
         }
 
+        logger.info(ResourceHandler.getMessage("infoDecompiled", filename));
         return true;
     }
 
@@ -157,7 +161,6 @@ public class IOServices {
         String json = createJsonString(object, prettyPrint);
 
         return json != null && saveJsonToFile(json, filename, outputFolder);
-
     }
 
 
@@ -210,9 +213,11 @@ public class IOServices {
 
         if(checkFolder(outputFolder)) {
 
+            String path = outputFolder.toString() + "\\" + filename + ResourceHandler.getProperties().getString("jsonExtension");
+
             BufferedWriter writer = null;
             try {
-                writer = new BufferedWriter(new FileWriter(outputFolder.toString() + "/" + filename + ".json"));
+                writer = new BufferedWriter(new FileWriter(path));
                 writer.write(json);
             } catch (IOException e) {
                 logger.error(e.getMessage());
@@ -226,6 +231,8 @@ public class IOServices {
                     logger.warn(e.getMessage());
                 }
             }
+
+            logger.info(ResourceHandler.getMessage("infoJsonExported", path));
         }
         else{
             return false;

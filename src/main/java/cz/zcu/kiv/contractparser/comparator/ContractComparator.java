@@ -31,16 +31,6 @@ public class ContractComparator {
             return ContractComparison.DIFFERENT;
         }
 
-        // whether the contracts are in the same class
-        if(contractX.getClassName().compareTo(contractY.getClassName()) != 0){
-            return ContractComparison.DIFFERENT;
-        }
-
-        // whether the contracts are in the same method
-        if(contractX.getMethodName().compareTo(contractY.getMethodName()) != 0){
-            return ContractComparison.DIFFERENT;
-        }
-
         // whether the contracts use the same function
         if(contractX.getFunction().compareTo(contractY.getFunction()) != 0){
             return ContractComparison.DIFFERENT;

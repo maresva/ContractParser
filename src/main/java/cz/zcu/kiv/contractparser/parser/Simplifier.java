@@ -1,5 +1,6 @@
 package cz.zcu.kiv.contractparser.parser;
 
+
 import cz.zcu.kiv.contractparser.model.*;
 
 /**
@@ -10,6 +11,11 @@ import cz.zcu.kiv.contractparser.model.*;
  * @author Vaclav Mares
  */
 public class Simplifier {
+
+    /** Private constructor to prevent its use */
+    private Simplifier() {
+    }
+    
 
     /**
      * Simplifies the input ExtendedJavaFile by discarding data that are no longer useful and creates JavaFile.

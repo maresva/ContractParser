@@ -16,11 +16,13 @@ import java.util.List;
  * */
 public class JavaFileComparator {
 
-    /** Contract comparisons which are allowed for the first search loop. It says contract should be equal or almost equal */
+    /** Contract comparisons which are allowed for the first search loop.
+     * It says contract should be equal or almost equal */
     private final static List<ContractComparison> ALLOWED_COMPARISONS_FIRST_SEARCH = Arrays.asList(
             ContractComparison.EQUAL, ContractComparison.MINOR_CHANGE);
 
-    /** Contract comparisons which are allowed for the second search loop. It says contract should be equal except for expression */
+    /** Contract comparisons which are allowed for the second search loop.
+     * It says contract should be equal except for expression */
     private final static List<ContractComparison> ALLOWED_COMPARISONS_SECOND_SEARCH = Arrays.asList(
             ContractComparison.GENERALIZED, ContractComparison.SPECIALIZED, ContractComparison.DIFFERENT_EXPRESSION);
 
@@ -29,8 +31,8 @@ public class JavaFileComparator {
 
 
     /**
-     * This method compares two JavaFiles and creates report about their differences in API and contracts. Reporting of
-     * equal objects as well as those that don't contain contracts can be turned off.
+     * This method compares two JavaFiles and creates report about their differences in API and contracts.
+     * Reporting of equal objects as well as those that don't contain contracts can be turned off.
      *
      * @param javaFileX                 First JavaFile to be compared
      * @param javaFileY                 Second JavaFile to be compared
@@ -154,7 +156,7 @@ public class JavaFileComparator {
                 }
 
                 // mark if there were any changes in contracts
-                if(notFoundContractsX.size() > 0 || javaMethodY.getContracts().size() > 0){
+                if(!notFoundContractsX.isEmpty() || !javaMethodY.getContracts().isEmpty()){
                     javaFileCompareReport.setContractEqual(false);
                 }
 
@@ -192,8 +194,8 @@ public class JavaFileComparator {
 
 
     /**
-     * Find a pair class for given class in given list of class. Class has to has to the same name. If class was found
-     * its ID is returned otherwise it is -1.
+     * Find a pair class for given class in given list of class. Class has to has to the same name.
+     * If class was found its ID is returned otherwise it is -1.
      *
      * @param javaClassX    JavaClass which pair should be found
      * @param javaClassesY  List of classes where the pair should be
@@ -226,8 +228,8 @@ public class JavaFileComparator {
 
 
     /**
-     * Find a pair method for given method in given list of methods. Method has to has to the same signature. If method
-     * was found its ID is returned otherwise it is -1.
+     * Find a pair method for given method in given list of methods. Method has to has to the same
+     * signature. If method was found its ID is returned otherwise it is -1.
      *
      * @param javaMethodX   JavaMethod which pair should be found
      * @param javaMethodsY  List of methods where the pair should be
@@ -260,8 +262,8 @@ public class JavaFileComparator {
 
 
     /**
-     * Find a pair contract for given contract in given list of contracts. Contracts has to have one of given allowed
-     * comparisons. If contract was found its ID is returned otherwise it is -1.
+     * Find a pair contract for given contract in given list of contracts. Contracts has to have
+     * one of given allowed comparisons. If contract was found its ID is returned otherwise it is -1.
      *
      * @param contractX             Contract which pair should be found
      * @param contractsY            List of contracts where the pair should be

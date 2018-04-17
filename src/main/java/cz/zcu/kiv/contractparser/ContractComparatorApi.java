@@ -11,7 +11,11 @@ import java.io.File;
  *
  * @author Vaclav Mares
  */
-public class ContractComparatorApi {
+public final class ContractComparatorApi {
+
+    /** Private constructor to prevent its use */
+    private ContractComparatorApi() {
+    }
 
     /** Instance of JavaFolderComparator which is used to call compare methods */
     private static JavaFolderComparator javaFolderComparator = new JavaFolderComparator();

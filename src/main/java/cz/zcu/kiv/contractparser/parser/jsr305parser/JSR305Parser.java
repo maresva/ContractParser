@@ -17,11 +17,10 @@ public class JSR305Parser implements ContractParser {
 
     /** List of JSR305 annotations. Those are used in methods and classes to realise JSR305 contracts. */
     private final String[] JSR305_ANNOTATIONS = {"CheckForNull", "CheckForSigned", "CheckReturnValue", "Detainted",
-            "Generated", "MatchesPattern", "Nonnegative", "Nonnull", "Nullable", "OverridingMethodsMustInvokeSuper",
-            "ParametersAreNonnullByDefault", "ParametersAreNullableByDefault", "PostConstruct", "PreDestroy",
-            "PropertyKey", "RegEx", "Resource", "Resources", "Signed", "Syntax", "Tainted", "Untainted",
-            "WillClose", "WillCloseWhenClosed", "WillNotClose"};
-
+            "MatchesPattern", "Nonnegative", "Nonnull", "Nullable", "OverridingMethodsMustInvokeSuper",
+            "ParametersAreNonnullByDefault", "ParametersAreNullableByDefault", "PropertyKey", "RegEx", "Signed",
+            "Syntax", "Tainted", "Untainted", "WillClose", "WillCloseWhenClosed", "WillNotClose"};
+    
 
     /**
      * This method extracts design by contract constructions of JSR305 type from given file.
@@ -49,8 +48,7 @@ public class JSR305Parser implements ContractParser {
             for (AnnotationExpr annotationExpr : extendedJavaClass.getAnnotations()) {
 
                 // check the class annotation for invariant
-                Contract contract = prepareContract(annotationExpr, ConditionType.INVARIANT, annotationExpr.toString(),
-                        extendedJavaFile.getShortPath(), className, "");
+                Contract contract = prepareContract(annotationExpr, ConditionType.INVARIANT, annotationExpr.toString());
 
                 // if recognized as a invariant - save it
                 if (contract != null) {
@@ -69,8 +67,7 @@ public class JSR305Parser implements ContractParser {
                 for (AnnotationExpr annotation : extendedJavaClass.getExtendedJavaMethods().get(j).getAnnotations()) {
 
                     // check the method annotation for post-condition
-                    Contract contract = prepareContract(annotation, ConditionType.POST, annotation.toString(),
-                            extendedJavaFile.getShortPath(), className, methodSignature);
+                    Contract contract = prepareContract(annotation, ConditionType.POST, annotation.toString());
 
                     // if recognized as a contract - save it
                     if (contract != null) {
@@ -87,8 +84,7 @@ public class JSR305Parser implements ContractParser {
                     for (AnnotationExpr annotation : parameter.getAnnotations()) {
 
                         // check the method annotation for pre-condition
-                        Contract contract = prepareContract(annotation, ConditionType.PRE, parameter.toString(),
-                                extendedJavaFile.getShortPath(), className, methodSignature);
+                        Contract contract = prepareContract(annotation, ConditionType.PRE, parameter.toString());
 
                         // if recognized as a contract - save it
                         if (contract != null) {
@@ -117,13 +113,10 @@ public class JSR305Parser implements ContractParser {
      * @param annotationExpr        expression containing JSR305 annotation
      * @param conditionType         type of contract condition based on location where it was found
      * @param completeExpression    complete expression prepared for saving
-     * @param filePath              path of parent file
-     * @param className             name of parent class
-     * @param methodSignature       signature of parent method
      * @return                      Contract object with filled data or null
      */
-    private Contract prepareContract(AnnotationExpr annotationExpr, ConditionType conditionType, String completeExpression,
-                                     String filePath, String className, String methodSignature) {
+    private Contract prepareContract(AnnotationExpr annotationExpr, ConditionType conditionType,
+                                     String completeExpression) {
 
         Contract contract = null;
 
@@ -141,17 +134,12 @@ public class JSR305Parser implements ContractParser {
 
                     arguments = new ArrayList<>();
                     for(int i = 2 ; i < annotationExpr.getChildNodes().size() ; i++){
-
                         arguments.add(annotationExpr.getChildNodes().get(i).toString());
                     }
                 }
 
                 contract = new Contract(ContractType.JSR305, conditionType,
                         completeExpression, JSR305annotation, expression, arguments);
-
-                contract.setFile(filePath);
-                contract.setClassName(className);
-                contract.setMethodName(methodSignature);
             }
         }
 

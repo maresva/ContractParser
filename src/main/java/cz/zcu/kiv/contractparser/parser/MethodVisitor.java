@@ -10,6 +10,7 @@ import com.github.javaparser.ast.comments.BlockComment;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaMethod;
 import org.apache.log4j.Logger;
@@ -42,7 +43,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         // retrieve argument which is parent ExtendedJavaFile
         ExtendedJavaFile extendedJavaFile = (ExtendedJavaFile) arg;
         if(extendedJavaFile == null){
-            logger.warn("ExtendedJavaFile was null.");
+            logger.warn(ResourceHandler.getMessage("errorFileNotParsedNull"));
             return;
         }
 
@@ -56,7 +57,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         Node topParent = null;
 
         if(nodeParent == null){
-            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getFullPath());
+            logger.warn(ResourceHandler.getMessage("errorFileNotParsedParent", extendedJavaFile.getFullPath()));
             return;
         }
 
@@ -76,7 +77,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         }
 
         if(topParent == null){
-            logger.warn("Could not retrieve parent class: " + extendedJavaFile.getFullPath());
+            logger.warn(ResourceHandler.getMessage("errorFileNotParsedParent", extendedJavaFile.getFullPath()));
         }
         else {
 
@@ -105,7 +106,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
                 }
             }
             catch (NoSuchElementException e){
-                logger.warn("Could not retrieve method body nodes.");
+                logger.warn(ResourceHandler.getMessage("errorParserBodyNotRetrieved",
+                        methodDeclaration.getDeclarationAsString()));
                 logger.warn(e.getMessage());
                 return;
             }

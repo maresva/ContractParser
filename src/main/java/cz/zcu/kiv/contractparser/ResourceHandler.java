@@ -3,13 +3,12 @@ package cz.zcu.kiv.contractparser;
 import org.apache.log4j.Logger;
 
 import java.text.MessageFormat;
-import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * This class serves as a assistant when handling resource files. It stores global variable for easy access to both
- * property a localization files. It also provides simple way to get message with placeholders.
+ * This class serves as a assistant when handling resource files. It stores global variable for easy access to
+ * property file. It also provides simple way to get message with placeholders.
  *
  * @author Vaclav Mares
  */
@@ -21,17 +20,13 @@ public class ResourceHandler {
     /** ResourceBundle with properties */
     private static final ResourceBundle properties = ResourceBundle.getBundle("contractparser");
 
-    /** ResourceBundle with english localization */
-    private static final ResourceBundle localization = ResourceBundle.getBundle("contractparser",
-            new Locale("en", "EN"));
-
 
     /** Constructor not meant to be used */
     private ResourceHandler(){}
 
 
     /**
-     * Using this method is possible to get String resource from localization resource bundle. It also enables to get
+     * Using this method is possible to get String resource from properties resource bundle. It also enables to get
      * the message with arguments using placeholders such as {0}, {1}, etc.
      *
      * @param resource      Name of resource to recover
@@ -43,7 +38,7 @@ public class ResourceHandler {
         String message = "";
 
         try {
-            String pattern = localization.getString(resource);
+            String pattern = properties.getString(resource);
             message = MessageFormat.format(pattern, arguments);
         }
         catch (MissingResourceException e){
@@ -57,9 +52,5 @@ public class ResourceHandler {
     // Getters
     public static ResourceBundle getProperties() {
         return properties;
-    }
-
-    public static ResourceBundle getLocalization() {
-        return localization;
     }
 }

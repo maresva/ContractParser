@@ -8,7 +8,6 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.*;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ public class GuavaParser implements ContractParser {
             "checkElementIndex", "badElementIndex", "checkPositionIndex", "badPositionIndex", "checkPositionIndexes",
             "badPositionIndexes"};
 
-    
     /**
      * This method extracts design by contract constructions of Guava Preconditions type from given file.
      *
@@ -61,10 +59,6 @@ public class GuavaParser implements ContractParser {
                         if (extendedJavaClass.getExtendedJavaMethods().get(j).getContracts().size() == 0) {
                             methodHasContract = true;
                         }
-
-                        contract.setFile(extendedJavaFile.getShortPath());
-                        contract.setClassName(extendedJavaClass.getName());
-                        contract.setMethodName(extendedJavaClass.getExtendedJavaMethods().get(j).getSignature());
 
                         extendedJavaClass.getExtendedJavaMethods().get(j).addContract(contract);
                         extendedJavaFile.getJavaFileStatistics().increaseNumberOfContracts(ContractType.GUAVA, 1);

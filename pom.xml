@@ -21,26 +21,11 @@
     </build>
 
     <dependencies>
-
         <!-- Library which provides logging -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
-        </dependency>
-
-        <!-- Design by Contract - JSR305 -->
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-
-        <!-- Design by Contract - Guava -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>23.0</version>
         </dependency>
 
         <!-- Library that decompiles Java bytecode -->
@@ -64,18 +49,7 @@
             <version>2.8.2</version>
         </dependency>
 
-        <!-- JUEL - Library that parses logical expressions -->
-        <dependency>
-            <groupId>de.odysseus.juel</groupId>
-            <artifactId>juel-api</artifactId>
-            <version>2.2.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.odysseus.juel</groupId>
-            <artifactId>juel-impl</artifactId>
-            <version>2.2.7</version>
-        </dependency>
+        <!-- Library that enables usage of jUnit tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

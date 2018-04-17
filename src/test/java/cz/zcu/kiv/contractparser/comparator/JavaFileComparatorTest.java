@@ -5,6 +5,7 @@ import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.Objects;
 
 class JavaFileComparatorTest {
 
@@ -14,7 +15,7 @@ class JavaFileComparatorTest {
     private void setUp(){
 
         classLoader = getClass().getClassLoader();
-        File fileJavaFileX = new File(classLoader.getResource("testFiles/testJavaFileX.java").getFile());
+        File fileJavaFileX = new File(Objects.requireNonNull(classLoader.getResource("testFiles/testJavaFileX.java")).getFile());
 
         javaFileX =  ContractExtractorApi.retrieveContracts(fileJavaFileX, false);
     }
@@ -54,7 +55,7 @@ class JavaFileComparatorTest {
 
 
     private JavaFile getTestJavaFile(String path) {
-        File fileJavaFileY = new File(classLoader.getResource(path).getFile());
+        File fileJavaFileY = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
         return ContractExtractorApi.retrieveContracts(fileJavaFileY, false);
     }
 

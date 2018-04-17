@@ -51,12 +51,10 @@ public class ContractExtractor {
                 return null;
             }
 
-            for(int i = 0 ; i < 1 ; i++) {
-                // If Guava is selected - search for Guava Design by Contracts
-                if (contractTypes == null || contractTypes.get(ContractType.GUAVA)) {
-                    contractParser = parserFactory.getParser(ContractType.GUAVA);
-                    extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
-                }
+            // If Guava is selected - search for Guava Design by Contracts
+            if (contractTypes == null || contractTypes.get(ContractType.GUAVA)) {
+                contractParser = parserFactory.getParser(ContractType.GUAVA);
+                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
             }
 
             // If JSR305 is selected - search for JSR305 Design by Contracts
@@ -64,9 +62,6 @@ public class ContractExtractor {
                 contractParser = parserFactory.getParser(ContractType.JSR305);
                 extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
             }
-
-            //logger.debug("Java file parsed: " + javaFile.getPath() + " (Contracts found: " +
-            // javaFile.getJavaFileStatistics().getTotalNumberOfContracts() + ")");
         }
         catch(ParseProblemException e){
             logger.warn(ResourceHandler.getMessage("errorJavaParserNotParsed", file.toString()));
@@ -80,6 +75,11 @@ public class ContractExtractor {
         // if checked remove all classes/methods that do not have any contracts or even return null
         if(removeNonContractObjects) {
             javaFile = Simplifier.removeNonContractObjects(javaFile);
+        }
+
+        if(javaFile != null) {
+            logger.info(ResourceHandler.getMessage("infoFilePared", javaFile.getFullPath(),
+                    javaFile.getJavaFileStatistics().getTotalNumberOfContracts()));
         }
 
         return javaFile;

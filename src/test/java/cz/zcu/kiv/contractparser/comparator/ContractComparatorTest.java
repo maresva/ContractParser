@@ -8,12 +8,13 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 class ContractComparatorTest {
 
-    private Contract contractX;
-    private ClassLoader classLoader;
+    private static Contract contractX;
+    private static ClassLoader classLoader;
 
     private void setUp(){
 
@@ -49,9 +50,6 @@ class ContractComparatorTest {
 
         Contract contractY = getTestContract("testFiles/testContractYChangeContractMessage.java");
         contractX.compareTo(contractY);
-
-        System.out.println(contractX);
-        System.out.println(contractY);
 
         assertEquals(ContractComparison.MINOR_CHANGE, contractX.compareTo(contractY));
     }

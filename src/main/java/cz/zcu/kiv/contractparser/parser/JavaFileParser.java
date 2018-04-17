@@ -9,13 +9,18 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.google.common.base.Preconditions;
 import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.io.IOServices;
-import cz.zcu.kiv.contractparser.model.*;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaClass;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
+import cz.zcu.kiv.contractparser.model.ExtendedJavaMethod;
+import cz.zcu.kiv.contractparser.model.FileType;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import static cz.zcu.kiv.contractparser.io.IOServices.decompileClassFile;
@@ -29,6 +34,11 @@ public class JavaFileParser {
 
     /** Log4j logger for this class */
     private final static Logger logger = Logger.getLogger(String.valueOf(JavaFileParser.class));
+
+    
+    /** Private constructor to prevent its use */
+    private JavaFileParser() {
+    }
 
 
     /**
@@ -183,7 +193,7 @@ public class JavaFileParser {
             }
         }
         catch (NoSuchElementException e){
-            logger.warn("Could not retrieve method body nodes.");
+            logger.warn(ResourceHandler.getMessage("errorParserBodyNotRetrieved", constructor.getDeclarationAsString()));
             logger.warn(e.getMessage());
             return null;
         }
@@ -201,9 +211,15 @@ public class JavaFileParser {
      */
     private static ExtendedJavaFile prepareFile(File file) {
 
-        // check whether file exists and is not directory
-        Preconditions.checkArgument(file.exists(), "Given file doesn't exist.");
-        Preconditions.checkArgument(file.isFile(), "Expected file not directory");
+        if(!file.exists()){
+            logger.error(ResourceHandler.getMessage("errorFileNotExist", file.getAbsolutePath()));
+            return null;
+        }
+
+        if(!file.isFile()){
+            logger.error(ResourceHandler.getMessage("errorFileCheckFile", file.getAbsolutePath()));
+            return null;
+        }
 
         // get file name and its extension
         String[] extensionAndName = IOServices.getFileNameAndExtension(file);
@@ -228,8 +244,7 @@ public class JavaFileParser {
                     extendedJavaFile.setFileType(FileType.CLASS);
                     break;
                 default:
-                    logger.warn("File " + file.getName()  + " not parsed because of unsupported file extension. ("
-                            + extension + ")");
+                    logger.warn(ResourceHandler.getMessage("errorFileExtension", file.getAbsolutePath()));
                     return null;
             }
         }
@@ -257,10 +272,10 @@ public class JavaFileParser {
         }
 
         if(classOrInterfaceDeclaration.isInterface()){
-            signature.append("interface");
+            signature.append(ResourceHandler.getProperties().getString("interfaceKeyword"));
         }
         else{
-            signature.append("class");
+            signature.append(ResourceHandler.getProperties().getString("classKeyword"));
         }
 
         signature.append(" ");
@@ -284,7 +299,7 @@ public class JavaFileParser {
             signature.append(modifier.toString().toLowerCase()).append(" ");
         }
 
-        signature.append("enum");
+        signature.append(ResourceHandler.getProperties().getString("enumKeyword"));
         signature.append(" ");
         signature.append(enumDeclaration.getNameAsString());
 

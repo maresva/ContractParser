@@ -58,7 +58,7 @@ public class JavaFile {
 
 
     /**
-     * Retrieve all contracts from given JavaFile across all methods.
+     * Retrieve all contracts from given JavaFile across all classes and methods.
      *
      * @return  List of contracts
      */
@@ -67,6 +67,9 @@ public class JavaFile {
         List<Contract> contracts = new ArrayList<>();
 
         for(JavaClass javaClass : javaClasses){
+
+            contracts.addAll(javaClass.getInvariants());
+
             for(JavaMethod javaMethod : javaClass.getJavaMethods()){
                 contracts.addAll(javaMethod.getContracts());
             }

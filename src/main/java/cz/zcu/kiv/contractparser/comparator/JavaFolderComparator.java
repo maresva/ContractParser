@@ -4,6 +4,7 @@ import cz.zcu.kiv.contractparser.ContractExtractorApi;
 import cz.zcu.kiv.contractparser.ResourceHandler;
 import cz.zcu.kiv.contractparser.io.IOServices;
 import cz.zcu.kiv.contractparser.model.JavaFile;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.util.List;
@@ -15,6 +16,9 @@ import java.util.List;
  * @author Vaclav Mares
  */
 public class JavaFolderComparator {
+
+    /** Log4j logger for this class */
+    private final static Logger logger = Logger.getLogger(String.valueOf(JavaFolderComparator.class));
 
     /**
      * This method compares two folders containing Java files. It compares individual files and determines what changes
@@ -115,12 +119,15 @@ public class JavaFolderComparator {
                     }
                 }
 
+                logger.info(ResourceHandler.getMessage("infoCompareFound", thisJavaFilePath));
+
                 otherJavaFiles.remove(otherJavaFileId);
             }
             else{
                 // if pair file was not found - add it to list of removed files
                 javaFolderCompareReport.addFileRemoved(thisJavaFilePath);
                 contractsRemoved += thisJavaFile.getJavaFileStatistics().getTotalNumberOfContracts();
+                logger.info(ResourceHandler.getMessage("infoCompareRemoved", thisJavaFilePath));
             }
         }
 
@@ -143,6 +150,7 @@ public class JavaFolderComparator {
 
             javaFolderCompareReport.addFileAdded(otherJavaFilePath);
             contractsAdded += otherJavaFile.getJavaFileStatistics().getTotalNumberOfContracts();
+            logger.info(ResourceHandler.getMessage("infoCompareAdd", otherJavaFilePath));
         }
 
         // create folder statistics

@@ -2,7 +2,7 @@ package cz.zcu.kiv.contractparser;
 
 import cz.zcu.kiv.contractparser.model.ContractType;
 import cz.zcu.kiv.contractparser.model.JavaFile;
-import cz.zcu.kiv.contractparser.parser.*;
+import cz.zcu.kiv.contractparser.parser.ContractExtractor;
 
 import java.io.File;
 import java.util.HashMap;
@@ -14,7 +14,11 @@ import java.util.List;
  *
  * @author Vaclav Mares
  */
-public class ContractExtractorApi {
+public final class ContractExtractorApi {
+
+    /** Private constructor to prevent its use */
+    private ContractExtractorApi() {
+    }
 
     /** Instance of ContractExtractor which is used to call extraction methods */
     private static ContractExtractor contractExtractor = new ContractExtractor();
