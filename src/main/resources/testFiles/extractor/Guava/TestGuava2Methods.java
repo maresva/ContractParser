@@ -1,3 +1,7 @@
+package extractor.Guava;
+
+import com.google.common.base.Preconditions;
+
 public class TestGuava2Methods {
 
     public void guavaTest(String x){
@@ -7,6 +11,6 @@ public class TestGuava2Methods {
     
     public void guavaTest2(String x){
       
-        Preconditions.checkArgument(x.length > 0);
+        Preconditions.checkArgument(x.length() > 0);
     }
 }

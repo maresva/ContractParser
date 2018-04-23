@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @Author Vaclav Mares
  */
-public class MainTest {
+public class TestJavaFileX {
 
     final Logger logger = Logger.getLogger(String.valueOf(Main.class));
     static HashMap<ContractType, Boolean> contractTypes = new HashMap<>();
@@ -49,9 +49,9 @@ public class MainTest {
     @Nonnull
     public static int guavaTest(@Nonnull String x){
 
-        Preconditions.checkNotNull(x, "x must not be null.");
+        //Preconditions.checkNotNull(x, "x must not be null.");
 
-        //Preconditions.checkArgument(x.length() == 0, "Illegal Argument passed: Negative value %s.", x);
+        Preconditions.checkArgument(x.length() == 0, "Illegal Argument passed: Negative value %s.", x);
 
         int y = 5;
 

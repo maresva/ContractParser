@@ -1,4 +1,4 @@
-public class MainTest {
+public class TestContractYDifferentContract {
 
     public static int guavaTest(String x){
 

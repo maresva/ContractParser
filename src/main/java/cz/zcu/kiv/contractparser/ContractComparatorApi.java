@@ -18,7 +18,7 @@ public final class ContractComparatorApi {
     }
 
     /** Instance of JavaFolderComparator which is used to call compare methods */
-    private static JavaFolderComparator javaFolderComparator = new JavaFolderComparator();
+    private static final JavaFolderComparator javaFolderComparator = new JavaFolderComparator();
 
     /**
      * This method compares two folders containing Java files. It compares individual files and determines what changes

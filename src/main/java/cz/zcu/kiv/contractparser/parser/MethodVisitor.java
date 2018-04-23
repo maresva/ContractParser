@@ -37,7 +37,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
      * @param arg   generic Object arguments - here it is ExtendedJavaClass to where method belongs
      */
     public void visit(MethodDeclaration methodDeclaration, Object arg) {
-
+        //System.out.println(methodDeclaration.getBody().get().getStatements().get(0));
         super.visit(methodDeclaration, arg);
 
         // retrieve argument which is parent ExtendedJavaFile
@@ -100,6 +100,9 @@ public class MethodVisitor extends VoidVisitorAdapter {
                 if(methodDeclaration.getBody().isPresent()) {
                     for (Node node : methodDeclaration.getBody().get().getChildNodes()) {
                         if (isNodePerspective(node)) {
+
+                            // remove comments from node and save it
+                            node.removeComment();
                             extendedJavaMethod.addBodyNode(node);
                         }
                     }
@@ -150,14 +153,6 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private boolean isNodePerspective(Node node){
 
         // if the node is comment - return false
-        if(node instanceof LineComment || node instanceof BlockComment)  {
-            return false;
-        }
-        else{
-            String nodeString = node.toString();
-
-            // library sometimes falsely returns commented code as a expression this work around stops it
-            return nodeString.length() < 2 || nodeString.charAt(0) != '/' || nodeString.charAt(1) != '/';
-        }
+        return !(node instanceof LineComment) && !(node instanceof BlockComment);
     }
 }

@@ -21,7 +21,7 @@ public final class ContractExtractorApi {
     }
 
     /** Instance of ContractExtractor which is used to call extraction methods */
-    private static ContractExtractor contractExtractor = new ContractExtractor();
+    private static final ContractExtractor contractExtractor = new ContractExtractor();
 
     /**
      * This method extracts Design by contract constructions from given file.

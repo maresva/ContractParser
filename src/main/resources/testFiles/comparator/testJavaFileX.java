@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @Author Vaclav Mares
  */
-public class MainTest {
+public class TestJavaFileX {
 
     final Logger logger = Logger.getLogger(String.valueOf(Main.class));
     static HashMap<ContractType, Boolean> contractTypes = new HashMap<>();

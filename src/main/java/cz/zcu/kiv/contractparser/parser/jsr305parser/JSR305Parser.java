@@ -37,12 +37,8 @@ public class JSR305Parser implements ContractParser {
             return extendedJavaFile;
         }
 
-        String className, methodSignature;
-
         // for each class
         for (ExtendedJavaClass extendedJavaClass : extendedJavaClasses) {
-
-            className = extendedJavaClass.getName();
 
             // save JSR305 contracts in class annotations
             for (AnnotationExpr annotationExpr : extendedJavaClass.getAnnotations()) {
@@ -60,7 +56,6 @@ public class JSR305Parser implements ContractParser {
             // for each method
             for (int j = 0; j < extendedJavaClass.getExtendedJavaMethods().size(); j++) {
 
-                methodSignature = extendedJavaClass.getExtendedJavaMethods().get(j).getSignature();
                 boolean methodHasContract = false;
 
                 // save JSR305 contracts in class annotations
