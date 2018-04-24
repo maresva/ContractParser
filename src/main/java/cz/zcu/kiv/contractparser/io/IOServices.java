@@ -213,7 +213,7 @@ public final class IOServices {
 
         if(checkFolder(outputFolder)) {
 
-            String path = outputFolder.toString() + "\\" + filename + ResourceHandler.getProperties().getString("jsonExtension");
+            String path = outputFolder.toString() + File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
 
             BufferedWriter writer = null;
             try {
@@ -287,7 +287,7 @@ public final class IOServices {
      */
     public static String escapeFilePath(String path) {
 
-        String replacedFilePath = path.replace("\\", ResourceHandler.getProperties()
+        String replacedFilePath = path.replace(File.separator, ResourceHandler.getProperties()
                 .getString("charReplacementSlash"));
         replacedFilePath = replacedFilePath.replace(":", ResourceHandler.getProperties()
                 .getString("charReplacementColon"));
