@@ -9,8 +9,8 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import cz.zcu.kiv.contractparser.ResourceHandler;
-import cz.zcu.kiv.contractparser.io.IOServices;
+import cz.zcu.kiv.contractparser.utils.ResourceHandler;
+import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaClass;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaMethod;
@@ -23,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import static cz.zcu.kiv.contractparser.io.IOServices.decompileClassFile;
+import static cz.zcu.kiv.contractparser.utils.IOServices.decompileClassFile;
 
 /**
  * This class provides methods to parse file with Java source code to later extract contracts from it.

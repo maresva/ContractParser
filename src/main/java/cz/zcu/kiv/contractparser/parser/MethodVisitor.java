@@ -10,7 +10,7 @@ import com.github.javaparser.ast.comments.BlockComment;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import cz.zcu.kiv.contractparser.ResourceHandler;
+import cz.zcu.kiv.contractparser.utils.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaMethod;
 import org.apache.log4j.Logger;

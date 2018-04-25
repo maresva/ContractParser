@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser;
+package cz.zcu.kiv.contractparser.utils;
 
 import org.apache.log4j.Logger;
 

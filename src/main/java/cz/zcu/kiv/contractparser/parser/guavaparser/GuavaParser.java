@@ -4,7 +4,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import cz.zcu.kiv.contractparser.ResourceHandler;
+import cz.zcu.kiv.contractparser.utils.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.*;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
 

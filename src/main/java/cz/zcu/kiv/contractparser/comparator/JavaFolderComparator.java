@@ -1,8 +1,8 @@
 package cz.zcu.kiv.contractparser.comparator;
 
 import cz.zcu.kiv.contractparser.ContractExtractorApi;
-import cz.zcu.kiv.contractparser.ResourceHandler;
-import cz.zcu.kiv.contractparser.io.IOServices;
+import cz.zcu.kiv.contractparser.utils.ResourceHandler;
+import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.apache.log4j.Logger;
 

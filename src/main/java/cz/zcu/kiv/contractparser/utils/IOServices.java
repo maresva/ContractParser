@@ -1,10 +1,9 @@
-package cz.zcu.kiv.contractparser.io;
+package cz.zcu.kiv.contractparser.utils;
 
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.strobel.decompiler.Decompiler;
-import cz.zcu.kiv.contractparser.ResourceHandler;
 import com.strobel.decompiler.PlainTextOutput;
 import cz.zcu.kiv.contractparser.model.FileType;
 import org.apache.log4j.Logger;
@@ -25,8 +24,7 @@ public final class IOServices {
     private final static Logger logger = Logger.getLogger(String.valueOf(IOServices.class));
 
     /** Private constructor to prevent its use */
-    private IOServices() {
-    }
+    private IOServices() {}
 
     /**
      * This method gets all files from given folder

@@ -1,6 +1,6 @@
 package cz.zcu.kiv.contractparser.parser;
 
-import cz.zcu.kiv.contractparser.ResourceHandler;
+import cz.zcu.kiv.contractparser.utils.ResourceHandler;
 import cz.zcu.kiv.contractparser.model.ContractType;
 import cz.zcu.kiv.contractparser.parser.guavaparser.GuavaParser;
 import cz.zcu.kiv.contractparser.parser.jsr305parser.JSR305Parser;

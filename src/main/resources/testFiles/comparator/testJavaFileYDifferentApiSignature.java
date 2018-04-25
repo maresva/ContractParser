@@ -1,7 +1,7 @@
 package cz.zcu.kiv.contractparser;
 
 import com.google.common.base.Preconditions;
-import cz.zcu.kiv.contractparser.io.IOServices;
+import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import cz.zcu.kiv.contractparser.parser.ContractType;
 import org.apache.log4j.Logger;

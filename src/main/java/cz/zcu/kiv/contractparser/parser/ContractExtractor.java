@@ -2,8 +2,8 @@ package cz.zcu.kiv.contractparser.parser;
 
 import com.github.javaparser.ParseProblemException;
 import cz.zcu.kiv.contractparser.ContractExtractorApi;
-import cz.zcu.kiv.contractparser.ResourceHandler;
-import cz.zcu.kiv.contractparser.io.IOServices;
+import cz.zcu.kiv.contractparser.utils.ResourceHandler;
+import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.ContractType;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFile;
@@ -112,22 +112,7 @@ public class ContractExtractor {
         }
 
         // reduce path of files by reducing their common part
-        if(javaFiles.size() > 0){
-
-            String longestPathPrefix = javaFiles.get(0).getFullPath();
-
-            // get longest common prefix of all files
-            for(int i = 1 ; i < javaFiles.size() ; i++){
-                longestPathPrefix = longestCommonPrefix(javaFiles.get(i).getFullPath(), longestPathPrefix);
-            }
-
-            // substring its length of every file's path
-            int prefixLength = longestPathPrefix.length();
-
-            for(JavaFile javaFile : javaFiles){
-                javaFile.setShortPath(javaFile.getFullPath().substring(prefixLength));
-            }
-        }
+        updateShortPathOfJavaFiles(javaFiles);
 
         return javaFiles;
     }
@@ -207,6 +192,33 @@ public class ContractExtractor {
 
 
     /**
+     * Updates short path of given list of JavaFiles to remove prefix that all files has in common.
+     *
+     * @param javaFiles     Input list of JavaFiles
+     */
+    public void updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
+
+        // reduce path of files by reducing their common part
+        if(javaFiles.size() > 0){
+
+            String longestPathPrefix = javaFiles.get(0).getFullPath();
+
+            // get longest common prefix of all files
+            for(int i = 1 ; i < javaFiles.size() ; i++){
+                longestPathPrefix = longestCommonPrefix(javaFiles.get(i).getFullPath(), longestPathPrefix);
+            }
+
+            // substring its length of every file's path
+            int prefixLength = longestPathPrefix.length();
+
+            for(JavaFile javaFile : javaFiles){
+                javaFile.setShortPath(javaFile.getFullPath().substring(prefixLength));
+            }
+        }
+    }
+
+
+    /**
      * Searches for the longest common prefix of two Strings. It is used when removing unnecessary prefix from
      * Java file paths.
      *
@@ -228,4 +240,5 @@ public class ContractExtractor {
 
         return stringX.substring(0, minLength);
     }
+
 }
