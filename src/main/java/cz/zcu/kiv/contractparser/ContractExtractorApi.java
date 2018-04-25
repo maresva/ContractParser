@@ -134,7 +134,7 @@ public final class ContractExtractorApi {
      *
      * @param javaFiles     Input list of JavaFiles
      */
-    public void updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
+    public static void updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
 
         contractExtractor.updateShortPathOfJavaFiles(javaFiles);
     }
