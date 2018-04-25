@@ -147,6 +147,8 @@ public class JavaFileParser {
             }
         }
 
+        extendedJavaFile.getJavaFileStatistics().setNumberOfFiles(1);
+
         // go through each method fileInputStream given file using the Method visitor
         MethodVisitor visitor = new MethodVisitor();
         visitor.visit(cu, extendedJavaFile);

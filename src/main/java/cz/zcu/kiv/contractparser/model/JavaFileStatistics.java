@@ -10,6 +10,9 @@ import java.util.HashMap;
  */
 public class JavaFileStatistics {
 
+    /** Total number fo files in case of use as a global statistics */
+    private int numberOfFiles;
+
     /** Total number of classes */
     private int numberOfClasses;
 
@@ -27,6 +30,7 @@ public class JavaFileStatistics {
 
 
     public JavaFileStatistics() {
+        this.numberOfFiles = 0;
         this.numberOfClasses = 0;
         this.numberOfMethods = 0;
         this.numberOfMethodsWithContracts = 0;
@@ -47,6 +51,7 @@ public class JavaFileStatistics {
      */
     public void mergeStatistics(JavaFileStatistics javaFileStatistics) {
 
+        this.numberOfFiles += javaFileStatistics.getNumberOfFiles();
         this.numberOfClasses += javaFileStatistics.getNumberOfClasses();
         this.numberOfMethods += javaFileStatistics.getNumberOfMethods();
         this.numberOfMethodsWithContracts += javaFileStatistics.getNumberOfMethodsWithContracts();
@@ -64,6 +69,7 @@ public class JavaFileStatistics {
     @Override
     public String toString() {
         return "JavaFileStatistics{" +
+                "numberOfFiles=" + numberOfFiles +
                 "numberOfClasses=" + numberOfClasses +
                 ", numberOfMethods=" + numberOfMethods +
                 ", numberOfMethodsWithContracts=" + numberOfMethodsWithContracts +
@@ -74,6 +80,10 @@ public class JavaFileStatistics {
     
 
     // Getters and Setters
+    public int getNumberOfFiles() {
+        return numberOfFiles;
+    }
+
     public int getNumberOfClasses() {
         return numberOfClasses;
     }
@@ -92,6 +102,10 @@ public class JavaFileStatistics {
 
     public HashMap<ContractType, Integer> getNumberOfContracts() {
         return numberOfContracts;
+    }
+
+    public void setNumberOfFiles(int numberOfFiles) {
+        this.numberOfFiles = numberOfFiles;
     }
 
     public void setNumberOfClasses(int numberOfClasses) {
