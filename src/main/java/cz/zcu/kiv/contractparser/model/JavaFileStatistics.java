@@ -56,11 +56,34 @@ public class JavaFileStatistics {
         this.numberOfMethods += javaFileStatistics.getNumberOfMethods();
         this.numberOfMethodsWithContracts += javaFileStatistics.getNumberOfMethodsWithContracts();
         this.totalNumberOfContracts += javaFileStatistics.getTotalNumberOfContracts();
-
+        
         for(ContractType contractType : ContractType.values()){
 
             int sum = this.numberOfContracts.get(contractType);
             sum += javaFileStatistics.getNumberOfContracts().get(contractType);
+            this.numberOfContracts.replace(contractType, sum);
+        }
+    }
+
+
+    /**
+     * Subtract all data from statistics based on input statistics. It is used to reduce global statistics for
+     * multiple Java files.
+     *
+     * @param javaFileStatistics    Statistics that will be detached with this ones
+     */
+    public void detachStatistics(JavaFileStatistics javaFileStatistics) {
+
+        this.numberOfFiles -= javaFileStatistics.getNumberOfFiles();
+        this.numberOfClasses -= javaFileStatistics.getNumberOfClasses();
+        this.numberOfMethods -= javaFileStatistics.getNumberOfMethods();
+        this.numberOfMethodsWithContracts -= javaFileStatistics.getNumberOfMethodsWithContracts();
+        this.totalNumberOfContracts -= javaFileStatistics.getTotalNumberOfContracts();
+
+        for(ContractType contractType : ContractType.values()){
+
+            int sum = this.numberOfContracts.get(contractType);
+            sum -= javaFileStatistics.getNumberOfContracts().get(contractType);
             this.numberOfContracts.replace(contractType, sum);
         }
     }
