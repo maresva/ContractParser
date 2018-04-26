@@ -9,6 +9,8 @@ import cz.zcu.kiv.contractparser.model.FileType;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -211,7 +213,13 @@ public final class IOServices {
 
         if(checkFolder(outputFolder)) {
 
-            String path = outputFolder.getAbsolutePath() + File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
+            // prepare absolute path of given file
+            String path = File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
+            try {
+                path = outputFolder.getCanonicalPath() + path;
+            } catch (IOException e) {
+                path = outputFolder.getPath() + path;
+            }
 
             BufferedWriter writer = null;
             try {
