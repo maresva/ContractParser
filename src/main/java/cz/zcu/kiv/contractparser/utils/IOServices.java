@@ -211,7 +211,7 @@ public final class IOServices {
 
         if(checkFolder(outputFolder)) {
 
-            String path = outputFolder.toString() + File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
+            String path = outputFolder.getAbsolutePath() + File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
 
             BufferedWriter writer = null;
             try {
