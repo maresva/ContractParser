@@ -176,26 +176,27 @@ public class JavaFolderComparator {
      * @param javaFolderCompareReport  JavaFolderCompareReport to be exported
      * @param outputFolder             File representing folder where should be export saved
      * @param prettyPrint              Whether JSON should be in human readable form or not
-     * @return                         boolean - true if at least one file was exported
+     * @return                         exported - number of exported files
      */
-    public boolean exportJavaCompareFolderToJson(JavaFolderCompareReport javaFolderCompareReport,
-                                                        File outputFolder, boolean prettyPrint) {
+    public int exportJavaCompareFolderToJson(JavaFolderCompareReport javaFolderCompareReport,
+                                             File outputFolder, boolean prettyPrint) {
         
-        boolean success = false;
+        int exported = 0;
 
         for(JavaFileCompareReport javaFileCompareReport : javaFolderCompareReport.getJavaFileCompareReports()){
 
             String filename = IOServices.escapeFilePath(javaFileCompareReport.getThisFilePath());
             if(IOServices.saveObjectAsJson(javaFileCompareReport, filename, outputFolder, prettyPrint)){
-                success = true;
+                exported++;
             }
         }
 
-        if(success){
+        // create statistics file only if at least one file was exported
+        if(exported > 0){
             IOServices.saveObjectAsJson(javaFolderCompareReport, ResourceHandler.getProperties().getString(
                     "globalStatisticsFile"), outputFolder, prettyPrint);
         }
 
-        return success;
+        return exported;
     }
 }

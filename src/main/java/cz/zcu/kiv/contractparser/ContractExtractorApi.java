@@ -83,17 +83,18 @@ public final class ContractExtractorApi {
      * This method extracts Design by contract constructions from every *.java and *.class file from give folder.
      * Extracted JavaFiles are then converted to JSON and saved to given location. This method should be used
      * if there is no future work with JavaFiles besides export as it is less memory demanding.
-     *
      * @param inputFolder               Input folder with java source files (*.class or *.java)
      * @param outputFolder              Output folder for generated JSON files
      * @param prettyPrint               Whether JSON should be in human readable form or not
      * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
-     * @param contractTypes             Specifies which contract types should be extracted
+     * @param contractTypes             Specifies which contract types should be extracted     *
+     * @return                          Number of successfully exported files
      */
-    public static void retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
-            boolean removeNonContractObjects, HashMap<ContractType, Boolean> contractTypes) {
+    public static int retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder,
+                                                                  boolean prettyPrint, boolean removeNonContractObjects,
+                                                                  HashMap<ContractType, Boolean> contractTypes) {
 
-        contractExtractor.retrieveContractsFromFolderExportToJson(inputFolder, outputFolder, prettyPrint,
+        return contractExtractor.retrieveContractsFromFolderExportToJson(inputFolder, outputFolder, prettyPrint,
                 removeNonContractObjects, contractTypes);
     }
 
@@ -106,12 +107,13 @@ public final class ContractExtractorApi {
      * @param inputFolder               Input folder with java source files (*.class or *.java)
      * @param outputFolder              Output folder for generated JSON files
      * @param prettyPrint               Whether JSON should be in human readable form or not
-     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
+     * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not     *
+     * @return                          Number of successfully exported files
      */
-    public static void retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
+    public static int retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
                                                                boolean removeNonContractObjects) {
 
-        retrieveContractsFromFolderExportToJson(inputFolder, outputFolder, prettyPrint, removeNonContractObjects,
+        return retrieveContractsFromFolderExportToJson(inputFolder, outputFolder, prettyPrint, removeNonContractObjects,
                 null);
     }
 
@@ -121,11 +123,12 @@ public final class ContractExtractorApi {
      *
      * @param javaFiles     Input list of JavaFiles
      * @param outputFolder  Output folder for generated JSON files
-     * @param prettyPrint   Whether JSON should be in human readable form or not
+     * @param prettyPrint   Whether JSON should be in human readable form or not      *
+     * @return              Number of successfully exported files
      */
-    public static void exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder, boolean prettyPrint) {
+    public static int exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder, boolean prettyPrint) {
 
-        contractExtractor.exportJavaFilesToJson(javaFiles, outputFolder, prettyPrint);
+        return contractExtractor.exportJavaFilesToJson(javaFiles, outputFolder, prettyPrint);
     }
 
 
@@ -134,8 +137,8 @@ public final class ContractExtractorApi {
      *
      * @param javaFiles     Input list of JavaFiles
      */
-    public static void updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
+    public static int updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
 
-        contractExtractor.updateShortPathOfJavaFiles(javaFiles);
+        return contractExtractor.updateShortPathOfJavaFiles(javaFiles);
     }
 }

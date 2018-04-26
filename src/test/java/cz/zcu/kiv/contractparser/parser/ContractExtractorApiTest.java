@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -401,6 +402,11 @@ class ContractExtractorApiTest {
      */
     private JavaFile getTestJavaFile(String path) {
         File fileJavaFile = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
+
+        HashMap<ContractType, Boolean> contractTypes = new HashMap<>();
+
+
+
         return ContractExtractorApi.retrieveContracts(fileJavaFile, false);
     }
 

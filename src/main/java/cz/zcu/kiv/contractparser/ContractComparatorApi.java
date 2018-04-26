@@ -68,9 +68,9 @@ public final class ContractComparatorApi {
      * @param javaFolderCompareReport  JavaFolderCompareReport to be exported
      * @param outputFolder             File representing folder where should be export saved
      * @param prettyPrint              Whether JSON should be in human readable form or not
-     * @return                         boolean - true if at least one file was exported
+     * @return                         Number of exported files
      */
-    public static boolean exportJavaFolderCompareReportToJson(JavaFolderCompareReport javaFolderCompareReport,
+    public static int exportJavaFolderCompareReportToJson(JavaFolderCompareReport javaFolderCompareReport,
                                                            File outputFolder, boolean prettyPrint){
 
        return javaFolderComparator.exportJavaCompareFolderToJson(javaFolderCompareReport, outputFolder, prettyPrint);

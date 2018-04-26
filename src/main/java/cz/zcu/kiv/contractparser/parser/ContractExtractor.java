@@ -1,15 +1,12 @@
 package cz.zcu.kiv.contractparser.parser;
 
 import com.github.javaparser.ParseProblemException;
-import cz.zcu.kiv.contractparser.ContractExtractorApi;
 import cz.zcu.kiv.contractparser.utils.ResourceHandler;
 import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.ContractType;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFileStatistics;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -25,7 +22,7 @@ import java.util.List;
 public class ContractExtractor {
 
     /** Log4j logger for this class */
-    private final static Logger logger = Logger.getLogger(String.valueOf(ContractExtractorApi.class));
+    private final static Logger logger = Logger.getLogger(ContractExtractor.class);
 
 
     /**
@@ -38,8 +35,6 @@ public class ContractExtractor {
      */
     public JavaFile retrieveContracts(File file, boolean removeNonContractObjects,
                                       HashMap<ContractType, Boolean> contractTypes){
-
-        LogManager.getLogger("stdout").setLevel(Level.INFO);
 
         ParserFactory parserFactory = new ParserFactory();
         ContractParser contractParser;
@@ -55,16 +50,14 @@ public class ContractExtractor {
                 return null;
             }
 
-            // If Guava is selected - search for Guava Design by Contracts
-            if (contractTypes == null || contractTypes.get(ContractType.GUAVA)) {
-                contractParser = parserFactory.getParser(ContractType.GUAVA);
-                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
-            }
+            // go through each contract type and retrieve all contracts from those selected
+            // process all contract types if collection is null
+            for(ContractType contractType : ContractType.values()) {
 
-            // If JSR305 is selected - search for JSR305 Design by Contracts
-            if (contractTypes == null || contractTypes.get(ContractType.JSR305)) {
-                contractParser = parserFactory.getParser(ContractType.JSR305);
-                extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+                if (contractTypes == null || contractTypes.get(contractType)) {
+                    contractParser = parserFactory.getParser(contractType);
+                    extendedJavaFile = contractParser.retrieveContracts(extendedJavaFile);
+                }
             }
         }
         catch(ParseProblemException e){
@@ -126,21 +119,22 @@ public class ContractExtractor {
      * This method extracts Design by contract constructions from every *.java and *.class file from give folder.
      * Extracted JavaFiles are then converted to JSON and saved to given location. This method should be used
      * if there is no future work with JavaFiles besides export as it is less memory demanding.
-     *
+     * 
      * @param inputFolder               Input folder with java source files (*.class or *.java)
      * @param outputFolder              Output folder for generated JSON files
      * @param prettyPrint               Whether JSON should be in human readable form or not
      * @param removeNonContractObjects  Whether should objects that don't contain contracts be returned or not
      * @param contractTypes             Specifies which contract types should be extracted
+     * @return                          Number of successfully exported files
      */
-    public void retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
-                                boolean removeNonContractObjects, HashMap<ContractType, Boolean> contractTypes) {
+    public int retrieveContractsFromFolderExportToJson(File inputFolder, File outputFolder, boolean prettyPrint,
+                                                           boolean removeNonContractObjects, HashMap<ContractType, Boolean> contractTypes) {
 
         JavaFileStatistics globalJavaFileStatistics = new JavaFileStatistics();
 
         List<File> files = IOServices.getFilesFromFolder(inputFolder, null);
 
-        boolean success = false;
+        int exported = 0;
         for (final File fileEntry : files) {
             if(fileEntry != null) {
 
@@ -151,56 +145,63 @@ public class ContractExtractor {
                     globalJavaFileStatistics.mergeStatistics(javaFile.getJavaFileStatistics());
                     String fileName = IOServices.escapeFilePath(javaFile.getShortPath());
                     if(IOServices.saveObjectAsJson(javaFile, fileName, outputFolder, prettyPrint)){
-                        success = true;
+                        exported++;
                     }
                 }
             }
         }
 
         // global statistics are saved only if at least one file was successfully saved
-        if(success) {
+        if(exported > 0) {
             String statisticsFileName = ResourceHandler.getProperties().getString("globalStatisticsFile");
             IOServices.saveObjectAsJson(globalJavaFileStatistics, statisticsFileName, outputFolder, prettyPrint);
         }
+        
+        return exported;
     }
 
 
     /**
      * Export given list of JavaFiles to JSON.
-     *
      * @param javaFiles     Input list of JavaFiles
      * @param outputFolder  Output folder for generated JSON files
-     * @param prettyPrint   Whether JSON should be in human readable form or not
+     * @param prettyPrint   Whether JSON should be in human readable form or not      *
+     * @return              Number of successfully exported files
      */
-    public void exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder, boolean prettyPrint) {
+    public int exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder, boolean prettyPrint) {
 
         JavaFileStatistics globalJavaFileStatistics = new JavaFileStatistics();
 
-        boolean success = false;
+        int exported = 0;
         for(JavaFile javaFile : javaFiles){
 
             globalJavaFileStatistics.mergeStatistics(javaFile.getJavaFileStatistics());
 
             String fileName = IOServices.escapeFilePath(javaFile.getShortPath());
             if(IOServices.saveObjectAsJson(javaFile, fileName, outputFolder, prettyPrint)){
-                success = true;
+                exported++;
             }
         }
 
         // global statistics are saved only if at least one file was successfully saved
-        if(success) {
+        if(exported >0) {
             String statisticsFileName = ResourceHandler.getProperties().getString("globalStatisticsFile");
             IOServices.saveObjectAsJson(globalJavaFileStatistics, statisticsFileName, outputFolder, prettyPrint);
         }
+        
+        return exported;
     }
 
 
     /**
      * Updates short path of given list of JavaFiles to remove prefix that all files has in common.
      *
-     * @param javaFiles     Input list of JavaFiles
+     * @param javaFiles     Input list of JavaFiles      *
+     * @return              Number of updated files
      */
-    public void updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
+    public int updateShortPathOfJavaFiles(List<JavaFile> javaFiles){
+
+        int updated = 0;
 
         // reduce path of files by reducing their common part
         if(javaFiles.size() > 0){
@@ -216,9 +217,15 @@ public class ContractExtractor {
             int prefixLength = longestPathPrefix.length();
 
             for(JavaFile javaFile : javaFiles){
-                javaFile.setShortPath(javaFile.getFullPath().substring(prefixLength));
+
+                if(javaFile != null && javaFile.getFullPath() != null) {
+                    javaFile.setShortPath(javaFile.getFullPath().substring(prefixLength));
+                    updated++;
+                }
             }
         }
+
+        return updated;
     }
 
 
