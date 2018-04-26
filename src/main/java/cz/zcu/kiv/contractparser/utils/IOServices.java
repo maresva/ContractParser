@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * This class provides methods for IO operations such as getting file extension, exporting to JSON etc.
@@ -214,14 +215,8 @@ public final class IOServices {
         if(checkFolder(outputFolder)) {
 
             // prepare absolute path of given file
-            String path = File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
-            try {
-                path = outputFolder.getCanonicalPath() + path;
-                System.out.println("CanonicalPath: " + path);
-            } catch (IOException e) {
-                path = outputFolder.getPath() + path;
-                System.out.println("Normal Path:   " + path);
-            }
+            String path = getAbsolutePath(outputFolder) + File.separator + filename
+                    + ResourceHandler.getProperties().getString("jsonExtension");
 
             BufferedWriter writer = null;
             try {
@@ -301,5 +296,26 @@ public final class IOServices {
                 .getString("charReplacementColon"));
 
         return replacedFilePath;
+    }
+
+
+    /**
+     * Retrieves absolute path of given file.
+     *
+     * @param file  Input file
+     * @return      Absolute path
+     */
+    public static String getAbsolutePath(File file){
+
+        String path;
+
+        try {
+            path = file.getCanonicalPath();
+        } catch (IOException e) {
+            path = file.getPath();
+            logger.warn(ResourceHandler.getMessage("errorFileAbsolutePathNotRetrieved", path));
+        }
+
+        return path;
     }
 }
