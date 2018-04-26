@@ -253,7 +253,7 @@ public class JavaFileParser {
 
         extendedJavaFile.setFileName(fileName);
         extendedJavaFile.setFullPath(IOServices.getAbsolutePath(file));
-        extendedJavaFile.setShortPath(file.getPath());
+        extendedJavaFile.setShortPath(IOServices.getAbsolutePath(file));
 
         return extendedJavaFile;
     }
