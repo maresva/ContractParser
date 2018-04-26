@@ -143,7 +143,8 @@ public class ContractExtractor {
                 // if JavaFile was retrieved - merge its statistics with the global ones and export file to JSON
                 if(javaFile != null) {
                     globalJavaFileStatistics.mergeStatistics(javaFile.getJavaFileStatistics());
-                    String fileName = IOServices.escapeFilePath(javaFile.getShortPath());
+
+                    String fileName = IOServices.escapeFilePath(javaFile.getFullPath());
                     if(IOServices.saveObjectAsJson(javaFile, fileName, outputFolder, prettyPrint)){
                         exported++;
                     }
@@ -176,8 +177,8 @@ public class ContractExtractor {
         for(JavaFile javaFile : javaFiles){
 
             globalJavaFileStatistics.mergeStatistics(javaFile.getJavaFileStatistics());
-
-            String fileName = IOServices.escapeFilePath(javaFile.getShortPath());
+            
+            String fileName = IOServices.escapeFilePath(javaFile.getFullPath());
             if(IOServices.saveObjectAsJson(javaFile, fileName, outputFolder, prettyPrint)){
                 exported++;
             }
