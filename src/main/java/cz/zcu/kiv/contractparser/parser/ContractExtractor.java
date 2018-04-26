@@ -8,6 +8,8 @@ import cz.zcu.kiv.contractparser.model.ContractType;
 import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFileStatistics;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -36,6 +38,8 @@ public class ContractExtractor {
      */
     public JavaFile retrieveContracts(File file, boolean removeNonContractObjects,
                                       HashMap<ContractType, Boolean> contractTypes){
+
+        LogManager.getLogger("stdout").setLevel(Level.INFO);
 
         ParserFactory parserFactory = new ParserFactory();
         ContractParser contractParser;
