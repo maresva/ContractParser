@@ -217,8 +217,10 @@ public final class IOServices {
             String path = File.separator + filename + ResourceHandler.getProperties().getString("jsonExtension");
             try {
                 path = outputFolder.getCanonicalPath() + path;
+                System.out.println("CanonicalPath: " + path);
             } catch (IOException e) {
                 path = outputFolder.getPath() + path;
+                System.out.println("Normal Path:   " + path);
             }
 
             BufferedWriter writer = null;
