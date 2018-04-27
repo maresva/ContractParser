@@ -211,10 +211,13 @@ public class ContractExtractor {
 
             // get longest common prefix of all files
             for(int i = 1 ; i < javaFiles.size() ; i++){
+
+                // as longest path take only path without filename
                 String pathWithoutName = javaFiles.get(i).getFullPath();
                 int extensionLength = javaFiles.get(i).getFileType().toString().length();
-                int endIndex = pathWithoutName.length() - (javaFiles.get(i).getFileName().length() + extensionLength);
+                int endIndex = pathWithoutName.length() - (javaFiles.get(i).getFileName().length() + extensionLength + 1);
                 pathWithoutName = pathWithoutName.substring(0, endIndex);
+
                 longestPathPrefix = longestCommonPrefix(pathWithoutName, longestPathPrefix);
             }
 
