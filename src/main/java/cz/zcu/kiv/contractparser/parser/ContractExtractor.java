@@ -205,13 +205,17 @@ public class ContractExtractor {
         int updated = 0;
 
         // reduce path of files by reducing their common part
-        if(javaFiles.size() > 0){
+        if(javaFiles.size() > 1){
 
             String longestPathPrefix = javaFiles.get(0).getFullPath();
 
             // get longest common prefix of all files
             for(int i = 1 ; i < javaFiles.size() ; i++){
-                longestPathPrefix = longestCommonPrefix(javaFiles.get(i).getFullPath(), longestPathPrefix);
+                String pathWithoutName = javaFiles.get(i).getFullPath();
+                int extensionLength = javaFiles.get(i).getFileType().toString().length();
+                int endIndex = pathWithoutName.length() - (javaFiles.get(i).getFileName().length() + extensionLength);
+                pathWithoutName = pathWithoutName.substring(0, endIndex);
+                longestPathPrefix = longestCommonPrefix(pathWithoutName, longestPathPrefix);
             }
 
             // substring its length of every file's path
