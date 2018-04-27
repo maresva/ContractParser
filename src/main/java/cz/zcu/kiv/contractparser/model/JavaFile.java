@@ -1,6 +1,6 @@
 package cz.zcu.kiv.contractparser.model;
 
-import cz.zcu.kiv.contractparser.comparator.JavaFileCompareReport;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.JavaFileCompareReport;
 import cz.zcu.kiv.contractparser.comparator.JavaFileComparator;
 
 import java.util.ArrayList;
@@ -14,23 +14,23 @@ import java.util.List;
 public class JavaFile {
 
     /** Name of the original file */
-    private String fileName;
+    protected String fileName;
 
     /** Path of original file */
-    private String fullPath;
+    protected String fullPath;
 
     /** Path in shortest possible way in compare to other extracted files */
-    private String shortPath;
+    protected String shortPath;
 
     /** Type of the original file (*.class or *.java) */
-    private FileType fileType;
+    protected FileType fileType;
 
     /** JavaFileStatistics about this JavaFile */
-    private JavaFileStatistics javaFileStatistics;
+    protected JavaFileStatistics javaFileStatistics;
 
 
     /** List of classes in the file */
-    private List<JavaClass> javaClasses;
+    protected List<JavaClass> javaClasses;
 
 
     public JavaFile() {

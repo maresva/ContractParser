@@ -1,6 +1,6 @@
 package cz.zcu.kiv.contractparser.parser;
 
-import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaFile;
 
 /**
  * Every contract parser has to implement this interface.

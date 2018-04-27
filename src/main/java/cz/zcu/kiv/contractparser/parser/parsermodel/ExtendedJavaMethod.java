@@ -1,8 +1,9 @@
-package cz.zcu.kiv.contractparser.model;
+package cz.zcu.kiv.contractparser.parser.parsermodel;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import cz.zcu.kiv.contractparser.model.JavaMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +18,13 @@ import java.util.List;
 public class ExtendedJavaMethod extends JavaMethod {
 
     /** Annotations for this method */
-    protected List<AnnotationExpr> annotations;
+    private List<AnnotationExpr> annotations;
 
     /** List of input parameters */
-    protected List<Parameter> parameters;
+    private List<Parameter> parameters;
 
     /** The whole body of method */
-    protected List<Node> body;
+    private List<Node> body;
 
 
     public ExtendedJavaMethod(String signature, boolean isConstructor) {

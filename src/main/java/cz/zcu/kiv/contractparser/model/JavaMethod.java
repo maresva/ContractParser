@@ -13,10 +13,10 @@ import java.util.List;
 public class JavaMethod {
 
     /** Signature of the method used for its identification */
-    String signature;
+    protected String signature;
 
     /** Determines whether the method is a constructor */
-    private boolean isConstructor;
+    protected boolean isConstructor;
 
     /** List of contracts in this method */
     protected List<Contract> contracts;

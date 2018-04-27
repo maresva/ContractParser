@@ -1,6 +1,8 @@
 package cz.zcu.kiv.contractparser.comparator;
 
-import cz.zcu.kiv.contractparser.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.api.ApiFactory;
+import cz.zcu.kiv.contractparser.api.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.ContractComparison;
 import cz.zcu.kiv.contractparser.model.Contract;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.junit.jupiter.api.Test;
@@ -25,11 +27,17 @@ class ContractComparatorTest {
     /** Basic contract to which others are compared to */
     private static Contract contractX;
 
+    /** Instance of ContractExtractorApi */
+    private ContractExtractorApi contractExtractorApi;
+
 
     /**
      * Prepare method which sets up some variables
      */
     private void setUp(){
+
+        ApiFactory apiFactory = new ApiFactory();
+        contractExtractorApi = apiFactory.getContractExtractorApi();
 
         pathStart = "testFiles/comparator/";
         classLoader = getClass().getClassLoader();
@@ -86,7 +94,7 @@ class ContractComparatorTest {
      */
     private Contract getTestContract(String path) {
         File file = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
-        JavaFile javaFile = ContractExtractorApi.retrieveContracts(file, false);
+        JavaFile javaFile = contractExtractorApi.retrieveContracts(file, false);
 
         return javaFile.getContracts().get(0);
     }

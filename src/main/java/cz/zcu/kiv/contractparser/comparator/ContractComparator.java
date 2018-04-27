@@ -1,5 +1,6 @@
 package cz.zcu.kiv.contractparser.comparator;
 
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.ContractComparison;
 import cz.zcu.kiv.contractparser.model.Contract;
 
 /**

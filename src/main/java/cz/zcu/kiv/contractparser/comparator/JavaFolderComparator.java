@@ -1,6 +1,10 @@
 package cz.zcu.kiv.contractparser.comparator;
 
-import cz.zcu.kiv.contractparser.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.api.ApiFactory;
+import cz.zcu.kiv.contractparser.api.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.JavaFileCompareReport;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.JavaFolderCompareReport;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.JavaFolderCompareStatistics;
 import cz.zcu.kiv.contractparser.utils.ResourceHandler;
 import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.JavaFile;
@@ -36,8 +40,8 @@ public class JavaFolderComparator {
      * @return                          JavaFolderCompareReport - containing all relevant compare information
      */
     public JavaFolderCompareReport compareJavaFolders(File thisFolder, File otherFolder, boolean reportEqual,
-                                      boolean reportNonContractChanges, boolean exportToJson, File jsonOutputFolder,
-                                      boolean prettyPrint) {
+                                                      boolean reportNonContractChanges, boolean exportToJson, File jsonOutputFolder,
+                                                      boolean prettyPrint) {
 
         JavaFolderCompareReport javaFolderCompareReport = new JavaFolderCompareReport(thisFolder.getAbsolutePath(),
                 otherFolder.getAbsolutePath());
@@ -59,8 +63,10 @@ public class JavaFolderComparator {
         String otherFolderPath = otherFolder.getAbsolutePath();
 
         // retrieve contracts from both folders
-        List<JavaFile> thisJavaFiles = ContractExtractorApi.retrieveContractsFromFolder(thisFolder, false);
-        List<JavaFile> otherJavaFiles = ContractExtractorApi.retrieveContractsFromFolder(otherFolder, false);
+        ApiFactory apiFactory = new ApiFactory();
+        ContractExtractorApi contractExtractorApi = apiFactory.getContractExtractorApi();
+        List<JavaFile> thisJavaFiles = contractExtractorApi.retrieveContractsFromFolder(thisFolder, false);
+        List<JavaFile> otherJavaFiles = contractExtractorApi.retrieveContractsFromFolder(otherFolder, false);
 
         for(JavaFile thisJavaFile : thisJavaFiles) {
 

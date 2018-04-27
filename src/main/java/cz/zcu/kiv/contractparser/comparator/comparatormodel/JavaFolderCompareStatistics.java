@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 /**
  * Instances of this class contains statistics from comparison of two folders containing Java source/class files.
@@ -21,7 +21,7 @@ public class JavaFolderCompareStatistics {
     private int contractsRemoved;
 
 
-    JavaFolderCompareStatistics(int filesAdded, int filesRemoved, int contractsAdded, int contractsRemoved) {
+    public JavaFolderCompareStatistics(int filesAdded, int filesRemoved, int contractsAdded, int contractsRemoved) {
         this.filesAdded = filesAdded;
         this.filesRemoved = filesRemoved;
         this.contractsAdded = contractsAdded;

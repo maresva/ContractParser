@@ -4,7 +4,7 @@ import com.github.javaparser.ParseProblemException;
 import cz.zcu.kiv.contractparser.utils.ResourceHandler;
 import cz.zcu.kiv.contractparser.utils.IOServices;
 import cz.zcu.kiv.contractparser.model.ContractType;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import cz.zcu.kiv.contractparser.model.JavaFileStatistics;
 import org.apache.log4j.Logger;
@@ -197,7 +197,7 @@ public class ContractExtractor {
     /**
      * Updates short path of given list of JavaFiles to remove prefix that all files has in common.
      *
-     * @param javaFiles     Input list of JavaFiles      *
+     * @param javaFiles     Input list of JavaFiles
      * @return              Number of updated files
      */
     public int updateShortPathOfJavaFiles(List<JavaFile> javaFiles){

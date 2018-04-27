@@ -1,5 +1,6 @@
 package cz.zcu.kiv.contractparser.comparator;
 
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.*;
 import cz.zcu.kiv.contractparser.model.Contract;
 import cz.zcu.kiv.contractparser.model.JavaClass;
 import cz.zcu.kiv.contractparser.model.JavaFile;

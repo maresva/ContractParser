@@ -2,6 +2,9 @@ package cz.zcu.kiv.contractparser.parser;
 
 
 import cz.zcu.kiv.contractparser.model.*;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaClass;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaFile;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaMethod;
 
 /**
  * This method provides to means to do transition from ExtendedJavaFile to JavaFile. It basically removes all

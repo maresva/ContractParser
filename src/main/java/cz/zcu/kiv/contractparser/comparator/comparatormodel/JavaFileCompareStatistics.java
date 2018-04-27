@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 /**
  * Instances of this class contains statistics from comparison of two JavaFiles.
@@ -29,7 +29,7 @@ public class JavaFileCompareStatistics {
     private int contractsChanged;
 
 
-    JavaFileCompareStatistics() {
+    public JavaFileCompareStatistics() {
     }
 
 

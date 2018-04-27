@@ -12,16 +12,16 @@ import java.util.List;
 public class JavaClass {
 
     /** Name of the class used for its identification */
-    String name;
+    protected String name;
 
     /** Complete signature of the class */
-    String signature;
+    protected String signature;
 
     /** List of methods in this class */
-    private List<JavaMethod> javaMethods;
+    protected List<JavaMethod> javaMethods;
 
     /** List of invariants in this class */
-    List<Contract> invariants;
+    protected List<Contract> invariants;
 
 
     public JavaClass(String name, String signature) {

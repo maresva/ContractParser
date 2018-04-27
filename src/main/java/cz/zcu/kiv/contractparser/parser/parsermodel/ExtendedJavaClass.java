@@ -1,6 +1,7 @@
-package cz.zcu.kiv.contractparser.model;
+package cz.zcu.kiv.contractparser.parser.parsermodel;
 
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import cz.zcu.kiv.contractparser.model.JavaClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +12,13 @@ import java.util.List;
  *
  * @author Vaclav Mares
  */
-public class ExtendedJavaClass extends JavaClass{
+public class ExtendedJavaClass extends JavaClass {
 
     /** List of annotations in this class */
     private List<AnnotationExpr> annotations;
 
     /** List of methods in this class */
-    protected List<ExtendedJavaMethod> extendedJavaMethods;
+    private List<ExtendedJavaMethod> extendedJavaMethods;
     
 
     public ExtendedJavaClass(String name, String signature) {

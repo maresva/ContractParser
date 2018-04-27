@@ -1,6 +1,8 @@
 package cz.zcu.kiv.contractparser.comparator;
 
-import cz.zcu.kiv.contractparser.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.api.ApiFactory;
+import cz.zcu.kiv.contractparser.api.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.JavaFileCompareReport;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.junit.jupiter.api.Test;
 
@@ -24,17 +26,23 @@ class JavaFileComparatorTest {
     /** Basic JavaFile to which others are compared to */
     private JavaFile javaFileX;
 
+    /** Instance of ContractExtractorApi */
+    private ContractExtractorApi contractExtractorApi;
+
 
     /**
      * Prepare method which sets up some variables
      */
     private void setUp(){
 
+        ApiFactory apiFactory = new ApiFactory();
+        contractExtractorApi = apiFactory.getContractExtractorApi();
+
         pathStart = "testFiles/comparator/";
         classLoader = getClass().getClassLoader();
         File fileJavaFileX = new File(Objects.requireNonNull(classLoader.getResource(pathStart + "testJavaFileX.java")).getFile());
 
-        javaFileX =  ContractExtractorApi.retrieveContracts(fileJavaFileX, false);
+        javaFileX =  contractExtractorApi.retrieveContracts(fileJavaFileX, false);
     }
 
 
@@ -93,6 +101,6 @@ class JavaFileComparatorTest {
      */
     private JavaFile getTestJavaFile(String path) {
         File fileJavaFileY = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
-        return ContractExtractorApi.retrieveContracts(fileJavaFileY, false);
+        return contractExtractorApi.retrieveContracts(fileJavaFileY, false);
     }
 }

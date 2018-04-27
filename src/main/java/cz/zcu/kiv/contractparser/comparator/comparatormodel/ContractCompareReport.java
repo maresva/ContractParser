@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 /**
  * Instances of this class are created when comparing two contracts in the scope of JavaFile. It says what comparison
@@ -28,7 +28,7 @@ public class ContractCompareReport {
     private ApiState apiState;
 
 
-    ContractCompareReport(ContractComparison contractComparison, String className, String methodName,
+    public ContractCompareReport(ContractComparison contractComparison, String className, String methodName,
                           String thisContractExpression, String otherContractExpression, ApiState apiState) {
         this.contractComparison = contractComparison;
         this.className = className;

@@ -1,4 +1,6 @@
-package cz.zcu.kiv.contractparser.model;
+package cz.zcu.kiv.contractparser.parser.parsermodel;
+
+import cz.zcu.kiv.contractparser.model.JavaFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
  *
  * @author Vaclav Mares
  */
-public class ExtendedJavaFile extends JavaFile{
+public class ExtendedJavaFile extends JavaFile {
 
     /** List of classes in the file */
     private List<ExtendedJavaClass> extendedJavaClasses;

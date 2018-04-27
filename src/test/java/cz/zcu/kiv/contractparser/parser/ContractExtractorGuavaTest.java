@@ -1,6 +1,8 @@
 package cz.zcu.kiv.contractparser.parser;
 
-import cz.zcu.kiv.contractparser.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.api.ApiFactory;
+import cz.zcu.kiv.contractparser.api.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.api.DefaultContractExtractorApi;
 import cz.zcu.kiv.contractparser.model.*;
 import org.junit.jupiter.api.Test;
 
@@ -21,11 +23,17 @@ class ContractExtractorGuavaTest {
     /** Class loader for resource gathering */
     private static ClassLoader classLoader;
 
+    /** Instance of ContractExtractorApi */
+    private ContractExtractorApi contractExtractorApi;
+
 
     /**
      * Prepare method which sets up some variables
      */
     private void setUp(){
+
+        ApiFactory apiFactory = new ApiFactory();
+        contractExtractorApi = apiFactory.getContractExtractorApi();
 
         pathStart = "testFiles/extractor/Guava/";
         classLoader = getClass().getClassLoader();
@@ -421,7 +429,7 @@ class ContractExtractorGuavaTest {
      */
     private JavaFile getTestJavaFile(String path) {
         File fileJavaFile = new File(Objects.requireNonNull(classLoader.getResource(path)).getFile());
-        return ContractExtractorApi.retrieveContracts(fileJavaFile, false);
+        return contractExtractorApi.retrieveContracts(fileJavaFile, false);
     }
 
 

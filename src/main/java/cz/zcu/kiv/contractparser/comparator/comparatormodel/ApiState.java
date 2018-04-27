@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 /** Kind of API state - added, removed, found pair. Used in ApiChange
  *

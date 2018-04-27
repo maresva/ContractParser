@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class JavaFolderCompareReport {
     transient private List<JavaFileCompareReport> javaFileCompareReports;
 
 
-    JavaFolderCompareReport(String thisFolderPath, String otherFolderPath) {
+    public JavaFolderCompareReport(String thisFolderPath, String otherFolderPath) {
 
         this.thisFolderPath = thisFolderPath;
         this.otherFolderPath = otherFolderPath;

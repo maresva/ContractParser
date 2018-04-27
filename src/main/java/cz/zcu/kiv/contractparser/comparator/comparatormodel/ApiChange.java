@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 /**
  * Instances of this class are used to specify changes in API when comparing two classes or methods.
@@ -20,7 +20,7 @@ public class ApiChange {
     private ApiState apiState;
 
 
-    ApiChange(ApiType apiType, String signature, int numberOfContracts, ApiState apiState) {
+    public ApiChange(ApiType apiType, String signature, int numberOfContracts, ApiState apiState) {
         this.apiType = apiType;
         this.signature = signature;
         this.numberOfContracts = numberOfContracts;

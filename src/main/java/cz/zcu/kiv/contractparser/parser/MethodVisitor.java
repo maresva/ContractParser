@@ -11,8 +11,8 @@ import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import cz.zcu.kiv.contractparser.utils.ResourceHandler;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaFile;
-import cz.zcu.kiv.contractparser.model.ExtendedJavaMethod;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaFile;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaMethod;
 import org.apache.log4j.Logger;
 
 import java.util.NoSuchElementException;

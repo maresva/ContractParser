@@ -1,4 +1,4 @@
-package cz.zcu.kiv.contractparser.comparator;
+package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class JavaFileCompareReport {
     private List<ContractCompareReport> contractCompareReports;
 
 
-    JavaFileCompareReport(String thisFilePath, String otherFilePath) {
+    public JavaFileCompareReport(String thisFilePath, String otherFilePath) {
         this.thisFilePath = thisFilePath;
         this.otherFilePath = otherFilePath;
         this.apiEqual = true;

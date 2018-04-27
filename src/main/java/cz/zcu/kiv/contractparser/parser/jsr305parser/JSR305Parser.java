@@ -4,6 +4,8 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import cz.zcu.kiv.contractparser.model.*;
 import cz.zcu.kiv.contractparser.parser.ContractParser;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaClass;
+import cz.zcu.kiv.contractparser.parser.parsermodel.ExtendedJavaFile;
 
 import java.util.ArrayList;
 import java.util.List;

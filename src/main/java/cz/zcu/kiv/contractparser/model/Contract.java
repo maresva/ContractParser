@@ -1,7 +1,7 @@
 package cz.zcu.kiv.contractparser.model;
 
 import cz.zcu.kiv.contractparser.comparator.ContractComparator;
-import cz.zcu.kiv.contractparser.comparator.ContractComparison;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.ContractComparison;
 
 import java.util.ArrayList;
 import java.util.List;
