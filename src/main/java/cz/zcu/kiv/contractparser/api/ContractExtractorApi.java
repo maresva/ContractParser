@@ -66,4 +66,12 @@ public interface ContractExtractorApi {
      * @return              Number of successfully exported files
      */
     int exportJavaFilesToJson(List<JavaFile> javaFiles, File outputFolder, boolean prettyPrint);
+
+
+    /**
+     * Updates short path of given list of JavaFiles to remove prefix that all files has in common.
+     *
+     * @param javaFiles     Input list of JavaFiles
+     */
+    int updateShortPathOfJavaFiles(List<JavaFile> javaFiles);
 }
