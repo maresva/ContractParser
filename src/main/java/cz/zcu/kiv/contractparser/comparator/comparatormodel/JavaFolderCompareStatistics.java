@@ -17,15 +17,18 @@ public class JavaFolderCompareStatistics {
     private int contractsAdded;
 
     /** How many contracts were removed compare to the other folder */
-
     private int contractsRemoved;
 
+    /** How many contracts were changed compare to the other folder */
+    private int contractsChanged;
 
-    public JavaFolderCompareStatistics(int filesAdded, int filesRemoved, int contractsAdded, int contractsRemoved) {
+
+    public JavaFolderCompareStatistics(int filesAdded, int filesRemoved, int contractsAdded, int contractsRemoved, int contractsChanged) {
         this.filesAdded = filesAdded;
         this.filesRemoved = filesRemoved;
         this.contractsAdded = contractsAdded;
         this.contractsRemoved = contractsRemoved;
+        this.contractsChanged = contractsChanged;
     }
 
 
@@ -36,6 +39,7 @@ public class JavaFolderCompareStatistics {
                 ", filesRemoved=" + filesRemoved +
                 ", contractsAdded=" + contractsAdded +
                 ", contractsRemoved=" + contractsRemoved +
+                ", contractsChanged=" + contractsChanged +
                 '}';
     }
 
@@ -71,5 +75,13 @@ public class JavaFolderCompareStatistics {
 
     public void setContractsRemoved(int contractsRemoved) {
         this.contractsRemoved = contractsRemoved;
+    }
+
+    public int getContractsChanged() {
+        return contractsChanged;
+    }
+
+    public void setContractsChanged(int contractsChanged) {
+        this.contractsChanged = contractsChanged;
     }
 }

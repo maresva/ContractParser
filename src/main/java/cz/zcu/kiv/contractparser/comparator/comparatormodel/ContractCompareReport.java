@@ -12,6 +12,9 @@ public class ContractCompareReport {
     /** Enum describing comparison between two contracts */
     private ContractComparison contractComparison;
 
+    /** Enum describing whether one contract was added, removed or pair was found */
+    private ApiState apiState;
+
     /** Name of parent class of contracts */
     private String className;
 
@@ -23,9 +26,6 @@ public class ContractCompareReport {
 
     /** Expression of the second contract */
     private String otherContractExpression;
-
-    /** Enum describing whether one contract was added, removed or pair was found */
-    private ApiState apiState;
 
 
     public ContractCompareReport(ContractComparison contractComparison, String className, String methodName,

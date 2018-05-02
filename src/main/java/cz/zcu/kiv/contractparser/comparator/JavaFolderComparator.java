@@ -48,6 +48,7 @@ public class JavaFolderComparator {
 
         int contractsAdded = 0;
         int contractsRemoved = 0;
+        int contractsChanged = 0;
 
         // check if folders exist and that they are folders
         if(!IOServices.checkFolder(thisFolder) || !IOServices.checkFolder(otherFolder)){
@@ -115,6 +116,8 @@ public class JavaFolderComparator {
                 if(javaFileCompareReport != null && 
                         (reportNonContractChanges || !javaFileCompareReport.isContractEqual())) {
 
+                    contractsChanged += javaFileCompareReport.getJavaFileCompareStatistics().getContractsChanged();
+
                     // if reports should be exported to JSON right away - do so - otherwise add it to the report list
                     if(exportToJson){
                         String filename = IOServices.escapeFilePath(thisJavaFilePath);
@@ -163,7 +166,7 @@ public class JavaFolderComparator {
         int filesAdded = javaFolderCompareReport.getFilesAdded().size();
         int filesRemoved = javaFolderCompareReport.getFilesRemoved().size();
         javaFolderCompareReport.setJavaFolderCompareStatistics(new JavaFolderCompareStatistics(filesAdded, filesRemoved,
-                contractsAdded, contractsRemoved));
+                contractsAdded, contractsRemoved, contractsChanged));
 
 
         if(exportToJson){
