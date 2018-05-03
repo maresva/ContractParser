@@ -75,7 +75,7 @@ public class ContractExtractor {
         }
 
         if(javaFile != null) {
-            logger.info(ResourceHandler.getMessage("infoFilePared", javaFile.getFullPath(),
+            logger.debug(ResourceHandler.getMessage("infoFilePared", javaFile.getFullPath(),
                     javaFile.getJavaFileStatistics().getTotalNumberOfContracts()));
         }
 

@@ -143,7 +143,7 @@ public final class IOServices {
             return false;
         }
 
-        logger.info(ResourceHandler.getMessage("infoDecompiled", filename));
+        logger.debug(ResourceHandler.getMessage("infoDecompiled", filename));
         return true;
     }
 
@@ -235,7 +235,7 @@ public final class IOServices {
                 }
             }
 
-            logger.info(ResourceHandler.getMessage("infoJsonExported", path));
+            logger.debug(ResourceHandler.getMessage("infoJsonExported", path));
         }
         else{
             return false;

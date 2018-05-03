@@ -128,7 +128,7 @@ public class JavaFolderComparator {
                     }
                 }
 
-                logger.info(ResourceHandler.getMessage("infoCompareFound", thisJavaFilePath));
+                logger.debug(ResourceHandler.getMessage("infoCompareFound", thisJavaFilePath));
 
                 otherJavaFiles.remove(otherJavaFileId);
             }
@@ -136,7 +136,7 @@ public class JavaFolderComparator {
                 // if pair file was not found - add it to list of removed files
                 javaFolderCompareReport.addFileRemoved(thisJavaFilePath);
                 contractsRemoved += thisJavaFile.getJavaFileStatistics().getTotalNumberOfContracts();
-                logger.info(ResourceHandler.getMessage("infoCompareRemoved", thisJavaFilePath));
+                logger.debug(ResourceHandler.getMessage("infoCompareRemoved", thisJavaFilePath));
             }
         }
 
@@ -159,7 +159,7 @@ public class JavaFolderComparator {
 
             javaFolderCompareReport.addFileAdded(otherJavaFilePath);
             contractsAdded += otherJavaFile.getJavaFileStatistics().getTotalNumberOfContracts();
-            logger.info(ResourceHandler.getMessage("infoCompareAdd", otherJavaFilePath));
+            logger.debug(ResourceHandler.getMessage("infoCompareAdd", otherJavaFilePath));
         }
 
         // create folder statistics
