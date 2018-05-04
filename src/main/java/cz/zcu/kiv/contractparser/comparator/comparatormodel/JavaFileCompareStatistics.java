@@ -58,6 +58,19 @@ public class JavaFileCompareStatistics {
                 '}';
     }
 
+
+    public void mergeStatistics(JavaFileCompareStatistics otherStatistics){
+
+        this.classesAdded += otherStatistics.getClassesAdded();
+        this.classesRemoved += otherStatistics.getClassesRemoved();
+        this.methodsAdded += otherStatistics.getMethodsAdded();
+        this.methodsRemoved += otherStatistics.getMethodsRemoved();
+        this.contractsAdded += otherStatistics.getContractsAdded();
+        this.contractsRemoved += otherStatistics.getContractsRemoved();
+        this.contractsChanged += otherStatistics.getContractsChanged();
+    }
+
+
     // Getters and setters
     public int getClassesAdded() {
         return classesAdded;
