@@ -102,7 +102,7 @@ public class JavaFileComparator {
                             ContractCompareReport contractCompareReport = new ContractCompareReport(
                                     contractComparison, javaClassX.getName(), javaMethodX.getSignature(),
                                     contractX.getCompleteExpression(), contractY.getCompleteExpression(),
-                                    ApiState.FOUND_PAIR);
+                                    ApiState.FOUND_PAIR, contractX.getContractType());
 
                             javaFileCompareReport.addContractReport(contractCompareReport);
                         }
@@ -140,7 +140,8 @@ public class JavaFileComparator {
                     // create report based on prepared data and add it to list of reports
                     ContractCompareReport contractCompareReport = new ContractCompareReport(
                             contractComparison, javaClassX.getName(), javaMethodX.getSignature(),
-                            contractX.getCompleteExpression(), contractYExpression, contractYApiState);
+                            contractX.getCompleteExpression(), contractYExpression, contractYApiState,
+                            contractX.getContractType());
 
                     javaFileCompareReport.addContractReport(contractCompareReport);
                 }
@@ -151,7 +152,8 @@ public class JavaFileComparator {
 
                     ContractCompareReport contractCompareReport = new ContractCompareReport(
                             ContractComparison.DIFFERENT, javaClassX.getName(), javaMethodX.getSignature(),
-                            "", contractY.getCompleteExpression(), ApiState.ADDED);
+                            "", contractY.getCompleteExpression(), ApiState.ADDED,
+                            contractY.getContractType());
 
                     javaFileCompareReport.addContractReport(contractCompareReport);
                 }

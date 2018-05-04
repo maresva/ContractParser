@@ -1,5 +1,7 @@
 package cz.zcu.kiv.contractparser.comparator.comparatormodel;
 
+import cz.zcu.kiv.contractparser.model.ContractType;
+
 /**
  * Instances of this class are created when comparing two contracts in the scope of JavaFile. It says what comparison
  * between them is, if one or the other has been added or removed. It also contains expression of both contracts as well
@@ -15,6 +17,9 @@ public class ContractCompareReport {
     /** Enum describing whether one contract was added, removed or pair was found */
     private ApiState apiState;
 
+    /** Type of contracts */
+    private ContractType contractType;
+
     /** Name of parent class of contracts */
     private String className;
 
@@ -29,13 +34,15 @@ public class ContractCompareReport {
 
 
     public ContractCompareReport(ContractComparison contractComparison, String className, String methodName,
-                          String thisContractExpression, String otherContractExpression, ApiState apiState) {
+                                    String thisContractExpression, String otherContractExpression, ApiState apiState,
+                                    ContractType contractType) {
         this.contractComparison = contractComparison;
         this.className = className;
         this.methodName = methodName;
         this.thisContractExpression = thisContractExpression;
         this.otherContractExpression = otherContractExpression;
         this.apiState = apiState;
+        this.contractType = contractType;
     }
 
 
@@ -48,6 +55,7 @@ public class ContractCompareReport {
                 ", thisContractExpression='" + thisContractExpression + '\'' +
                 ", otherContractExpression='" + otherContractExpression + '\'' +
                 ", apiState=" + apiState +
+                ", contractType=" + contractType +
                 '}';
     }
     
@@ -99,5 +107,13 @@ public class ContractCompareReport {
 
     public void setApiState(ApiState apiState) {
         this.apiState = apiState;
+    }
+
+    public ContractType getContractType() {
+        return contractType;
+    }
+
+    public void setContractType(ContractType contractType) {
+        this.contractType = contractType;
     }
 }

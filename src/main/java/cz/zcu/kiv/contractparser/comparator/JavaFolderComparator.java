@@ -66,8 +66,8 @@ public class JavaFolderComparator {
         // retrieve contracts from both folders
         ApiFactory apiFactory = new ApiFactory();
         ContractExtractorApi contractExtractorApi = apiFactory.getContractExtractorApi();
-        List<JavaFile> thisJavaFiles = contractExtractorApi.retrieveContractsFromFolder(thisFolder, false);
-        List<JavaFile> otherJavaFiles = contractExtractorApi.retrieveContractsFromFolder(otherFolder, false);
+        List<JavaFile> thisJavaFiles = contractExtractorApi.retrieveContractsFromFolder(thisFolder, true);
+        List<JavaFile> otherJavaFiles = contractExtractorApi.retrieveContractsFromFolder(otherFolder, true);
 
         for(JavaFile thisJavaFile : thisJavaFiles) {
 
@@ -110,11 +110,10 @@ public class JavaFolderComparator {
             // if pair file was found compare those files and add java file report to the folder report
             if(fileFound){
 
-                JavaFileCompareReport javaFileCompareReport = thisJavaFile.compareJavaFileTo(
-                        otherJavaFiles.get(otherJavaFileId), reportEqual, reportNonContractChanges);
+                JavaFileCompareReport javaFileCompareReport = thisJavaFile.compareJavaFileTo(otherJavaFiles
+                        .get(otherJavaFileId), reportEqual, reportNonContractChanges);
 
-                if(javaFileCompareReport != null && 
-                        (reportNonContractChanges || !javaFileCompareReport.isContractEqual())) {
+                if(javaFileCompareReport != null && (reportNonContractChanges || !javaFileCompareReport.isContractEqual())) {
 
                     contractsChanged += javaFileCompareReport.getJavaFileCompareStatistics().getContractsChanged();
 
