@@ -44,6 +44,21 @@ public class JavaFolderCompareStatistics {
     }
 
 
+    /**
+     * Merges this statistics with other ones by adding all values together
+     *
+     * @param otherStatistics   Statistics to be merged
+     */
+    public void mergeStatistics(JavaFolderCompareStatistics otherStatistics) {
+
+        this.filesAdded += otherStatistics.getFilesAdded();
+        this.filesRemoved += otherStatistics.getFilesRemoved();
+        this.contractsAdded += otherStatistics.getContractsAdded();
+        this.contractsRemoved += otherStatistics.getContractsRemoved();
+        this.contractsChanged += otherStatistics.getContractsChanged();
+    }
+
+
     // Getters and setters
     public int getFilesAdded() {
         return filesAdded;

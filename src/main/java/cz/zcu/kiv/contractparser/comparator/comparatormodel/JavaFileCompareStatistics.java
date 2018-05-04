@@ -59,6 +59,11 @@ public class JavaFileCompareStatistics {
     }
 
 
+    /**
+     * Merges this statistics with other ones by adding all values together
+     *
+     * @param otherStatistics   Statistics to be merged
+     */
     public void mergeStatistics(JavaFileCompareStatistics otherStatistics){
 
         this.classesAdded += otherStatistics.getClassesAdded();
