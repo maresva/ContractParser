@@ -59,6 +59,20 @@ public class JavaFolderCompareStatistics {
     }
 
 
+    /**
+     * Merges statistics from another JavaFileCompareReport
+     *
+     * @param fileReport   Report which statistics should be merged
+     */
+    public void mergeFileStatistics(JavaFileCompareReport fileReport) {
+
+        this.contractsAdded += fileReport.getJavaFileCompareStatistics().getContractsAdded();
+        this.contractsRemoved += fileReport.getJavaFileCompareStatistics().getContractsRemoved();
+        this.contractsChanged += fileReport.getJavaFileCompareStatistics().getContractsChanged();
+    }
+
+
+
     // Getters and setters
     public int getFilesAdded() {
         return filesAdded;
