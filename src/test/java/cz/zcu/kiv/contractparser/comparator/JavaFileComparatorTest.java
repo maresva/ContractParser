@@ -2,6 +2,7 @@ package cz.zcu.kiv.contractparser.comparator;
 
 import cz.zcu.kiv.contractparser.api.ApiFactory;
 import cz.zcu.kiv.contractparser.api.ContractExtractorApi;
+import cz.zcu.kiv.contractparser.comparator.comparatormodel.ApiState;
 import cz.zcu.kiv.contractparser.comparator.comparatormodel.JavaFileCompareReport;
 import cz.zcu.kiv.contractparser.model.JavaFile;
 import org.junit.jupiter.api.Test;
@@ -90,6 +91,22 @@ class JavaFileComparatorTest {
         JavaFileCompareReport javaFileCompareReport = javaFileX.compareJavaFileTo(javaFileY, true, false);
         assertEquals(true, javaFileCompareReport.isContractEqual());
         assertEquals(false, javaFileCompareReport.isApiEqual());
+    }
+
+
+
+
+
+    @Test
+    void testCompareAddedInvariant() {
+
+        setUp();
+
+        JavaFile javaFileY = getTestJavaFile(pathStart + "testJavaFileYAddedInvariant.java");
+        JavaFileCompareReport javaFileCompareReport = javaFileX.compareJavaFileTo(javaFileY, true, false);
+        assertEquals(false, javaFileCompareReport.isContractEqual());
+        assertEquals(true, javaFileCompareReport.isApiEqual());
+        assertEquals(ApiState.ADDED, javaFileCompareReport.getContractCompareReports().get(0).getApiState());
     }
 
 
