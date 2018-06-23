@@ -72,6 +72,7 @@ public interface ContractExtractorApi {
      * Updates short path of given list of JavaFiles to remove prefix that all files has in common.
      *
      * @param javaFiles     Input list of JavaFiles
+     * @return              Number of updated paths
      */
     int updateShortPathOfJavaFiles(List<JavaFile> javaFiles);
 }

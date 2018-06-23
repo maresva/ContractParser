@@ -63,6 +63,10 @@ public class JavaFileComparator {
             JavaClass javaClassY = javaFileY.getJavaClasses().get(javaClassYId);
 
 
+            javaFileCompareReport = processContracts(javaFileCompareReport, javaClassX.getInvariants(),
+                    javaClassY.getInvariants(), reportEqual, javaClassX.getName(), "");
+
+
             // go through all methods of class X
             for(int javaMethodXId = 0 ; javaMethodXId < javaClassX.getJavaMethods().size() ; javaMethodXId++){
 
@@ -80,88 +84,9 @@ public class JavaFileComparator {
 
                 JavaMethod javaMethodY = javaClassY.getJavaMethods().get(javaMethodYId);
 
-                List<Contract> notFoundContractsX = new ArrayList<>();
-
-
-                // go through all contracts of method X - try to find contract that is equal or has only minor changes
-                for(int contractXId = 0 ; contractXId < javaMethodX.getContracts().size() ; contractXId++){
-
-                    Contract contractX = javaMethodX.getContracts().get(contractXId);
-                    int contractYId = findPairContract(contractX, javaMethodY.getContracts(),
-                            ALLOWED_COMPARISONS_FIRST_SEARCH);
-
-                    // if the contract was not found - add it to list of not found contracts
-                    if(contractYId < 0){
-                        notFoundContractsX.add(contractX);
-                    }
-                    // otherwise add it to compare report if equal reports are desired
-                    else{
-                        Contract contractY = javaMethodY.getContracts().get(contractYId);
-
-                        if (reportEqual) {
-                            ContractCompareReport contractCompareReport = new ContractCompareReport(
-                                    contractComparison, javaClassX.getName(), javaMethodX.getSignature(),
-                                    contractX.getCompleteExpression(), contractY.getCompleteExpression(),
-                                    ApiState.FOUND_PAIR, contractX.getContractType());
-
-                            javaFileCompareReport.addContractReport(contractCompareReport);
-                        }
-
-                        // remove processed contract
-                        javaMethodY.getContracts().remove(contractYId);
-                    }
-                }
-
-
-                // go through all contracts of method X - try to find the same type with different expression
-                for(Contract contractX : notFoundContractsX){
-
-                    int contractYId = findPairContract(contractX, javaMethodY.getContracts(),
-                            ALLOWED_COMPARISONS_SECOND_SEARCH);
-
-                    String contractYExpression;
-                    ApiState contractYApiState;
-
-                    // if the contract was not found - prepare data as if the contract was removed
-                    if(contractYId < 0){
-                        contractYExpression = "";
-                        contractYApiState = ApiState.REMOVED;
-                    }
-                    // otherwise prepare data of found contract and then remove it from the list
-                    else{
-                        Contract contractY = javaMethodY.getContracts().get(contractYId);
-                        contractYExpression = contractY.getCompleteExpression();
-                        contractYApiState = ApiState.FOUND_PAIR;
-
-                        // remove processed contract
-                        javaMethodY.getContracts().remove(contractYId);
-                    }
-
-                    // create report based on prepared data and add it to list of reports
-                    ContractCompareReport contractCompareReport = new ContractCompareReport(
-                            contractComparison, javaClassX.getName(), javaMethodX.getSignature(),
-                            contractX.getCompleteExpression(), contractYExpression, contractYApiState,
-                            contractX.getContractType());
-
-                    javaFileCompareReport.addContractReport(contractCompareReport);
-                }
-
-
-                // report all contracts that left as newly added
-                for(Contract contractY : javaMethodY.getContracts()){
-
-                    ContractCompareReport contractCompareReport = new ContractCompareReport(
-                            ContractComparison.DIFFERENT, javaClassX.getName(), javaMethodX.getSignature(),
-                            "", contractY.getCompleteExpression(), ApiState.ADDED,
-                            contractY.getContractType());
-
-                    javaFileCompareReport.addContractReport(contractCompareReport);
-                }
-
-                // mark if there were any changes in contracts
-                if(!notFoundContractsX.isEmpty() || !javaMethodY.getContracts().isEmpty()){
-                    javaFileCompareReport.setContractEqual(false);
-                }
+                // process contracts of current method
+                javaFileCompareReport = processContracts(javaFileCompareReport, javaMethodX.getContracts(),
+                        javaMethodY.getContracts(), reportEqual, javaClassX.getName(), javaMethodX.getSignature());
 
                 // remove processed method
                 javaClassY.getJavaMethods().remove(javaMethodYId);
@@ -190,6 +115,107 @@ public class JavaFileComparator {
         // mark if there were any changes in the API
         if(javaFileCompareReport.getApiChanges().size() > 0){
             javaFileCompareReport.setApiEqual(false);
+        }
+
+        return javaFileCompareReport;
+    }
+
+
+    /**
+     * This method goes through two lists of contracts and compares them. All data are filled in input report object.
+     *
+     * @param javaFileCompareReport     Compare report for the file
+     * @param contractsX                First list of contracts
+     * @param contractsY                Second list of contracts
+     * @param reportEqual               Whether equal object should be reported or not
+     * @param javaClassName             Name of the class
+     * @param javaMethodSignature       Signature of the method
+     * @return   JavaFileCompareReport updated with contract compare data
+     */
+    private JavaFileCompareReport processContracts(JavaFileCompareReport javaFileCompareReport, List<Contract> contractsX,
+                                                   List<Contract> contractsY, boolean reportEqual, String javaClassName,
+                                                   String javaMethodSignature) {
+
+        List<Contract> notFoundContractsX = new ArrayList<>();
+
+        // go through all contracts of method X - try to find contract that is equal or has only minor changes
+        for(int contractXId = 0 ; contractXId < contractsX.size() ; contractXId++){
+
+            Contract contractX = contractsX.get(contractXId);
+            int contractYId = findPairContract(contractX, contractsY,
+                    ALLOWED_COMPARISONS_FIRST_SEARCH);
+
+            // if the contract was not found - add it to list of not found contracts
+            if(contractYId < 0){
+                notFoundContractsX.add(contractX);
+            }
+            // otherwise add it to compare report if equal reports are desired
+            else{
+                Contract contractY = contractsY.get(contractYId);
+
+                if (reportEqual) {
+                    ContractCompareReport contractCompareReport = new ContractCompareReport(
+                            contractComparison, javaClassName, javaMethodSignature,
+                            contractX.getCompleteExpression(), contractY.getCompleteExpression(),
+                            ApiState.FOUND_PAIR, contractX.getContractType());
+
+                    javaFileCompareReport.addContractReport(contractCompareReport);
+                }
+
+                // remove processed contract
+                contractsY.remove(contractYId);
+            }
+        }
+
+
+        // go through all contracts of method X - try to find the same type with different expression
+        for(Contract contractX : notFoundContractsX){
+
+            int contractYId = findPairContract(contractX, contractsY,
+                    ALLOWED_COMPARISONS_SECOND_SEARCH);
+
+            String contractYExpression;
+            ApiState contractYApiState;
+
+            // if the contract was not found - prepare data as if the contract was removed
+            if(contractYId < 0){
+                contractYExpression = "";
+                contractYApiState = ApiState.REMOVED;
+            }
+            // otherwise prepare data of found contract and then remove it from the list
+            else{
+                Contract contractY = contractsY.get(contractYId);
+                contractYExpression = contractY.getCompleteExpression();
+                contractYApiState = ApiState.FOUND_PAIR;
+
+                // remove processed contract
+                contractsY.remove(contractYId);
+            }
+
+            // create report based on prepared data and add it to list of reports
+            ContractCompareReport contractCompareReport = new ContractCompareReport(
+                    contractComparison, javaClassName, javaMethodSignature,
+                    contractX.getCompleteExpression(), contractYExpression, contractYApiState,
+                    contractX.getContractType());
+
+            javaFileCompareReport.addContractReport(contractCompareReport);
+        }
+
+
+        // report all contracts that left as newly added
+        for(Contract contractY : contractsY){
+
+            ContractCompareReport contractCompareReport = new ContractCompareReport(
+                    ContractComparison.DIFFERENT, javaClassName, javaMethodSignature,
+                    "", contractY.getCompleteExpression(), ApiState.ADDED,
+                    contractY.getContractType());
+
+            javaFileCompareReport.addContractReport(contractCompareReport);
+        }
+
+        // mark if there were any changes in contracts
+        if(!notFoundContractsX.isEmpty() || !contractsY.isEmpty()){
+            javaFileCompareReport.setContractEqual(false);
         }
 
         return javaFileCompareReport;
